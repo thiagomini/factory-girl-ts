@@ -31,6 +31,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.7",
     "type-fest": "^3.8.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vitest": "^0.30.1"
   }
 }
