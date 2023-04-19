@@ -1,0 +1,26 @@
+{
+  "name": "factory-girl-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "engines": {
+    "node": ">= 19.8.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thiagomini/factory-girl-ts.git"
+  },
+  "keywords": [],
+  "author": "Thiago Ribeiro Valentim Martins",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thiagomini/factory-girl-ts/issues"
+  },
+  "homepage": "https://github.com/thiagomini/factory-girl-ts#readme"
+}
