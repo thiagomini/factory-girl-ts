@@ -2,8 +2,7 @@
   "compilerOptions": {
     "incremental": true,
     "target": "ESNext",
-    "outDir": "build/main",
-    "rootDir": "src",
+    "baseUrl": "./",
     "moduleResolution": "node",
     "module": "commonjs",
     "declaration": true,
@@ -26,10 +25,12 @@
     "pretty": true /* Stylize errors and messages using color and context. */,
 
     "lib": ["es2017"],
-    "types": ["node"],
-    "typeRoots": ["node_modules/@types", "src/types"]
+    "types": ["node", "vitest/globals"],
+    "typeRoots": ["node_modules/@types", "src/types"],
+    "paths": {
+      "@src/*": ["src/*"],
+      "@test/*": ["test/*"]
+    }
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules/**"],
   "compileOnSave": false
 }
