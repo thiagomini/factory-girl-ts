@@ -6,4 +6,10 @@ export interface Creator<T> {
   create(partial: Partial<T>): Promise<T>;
 }
 
-export type Factory<T> = Builder<T> & Creator<T> & {};
+export class Factory<T> implements Builder<T> {
+  constructor(private readonly defaultAttributesFactory: () => T) {}
+
+  build(): T {
+    return this.defaultAttributesFactory();
+  }
+}
