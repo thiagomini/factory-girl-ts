@@ -1,7 +1,7 @@
-import { Associate } from "./associator.interface";
+import { Association } from "@src/association";
 
 export type DefaultAttributesFactory<T> = () =>
   | T
   | {
-      [K in keyof T]?: T[K] | Associate<T[K], keyof T[K]>;
+      [K in keyof T]?: T[K] | Association<T[K]>;
     };

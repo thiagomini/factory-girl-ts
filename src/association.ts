@@ -1,21 +1,18 @@
+import { ValueOf } from "type-fest";
 import { Builder } from "./interfaces";
-
-type ValueOrObject<T, K extends keyof T | undefined> = K extends keyof T
-  ? T[K]
-  : T;
-
 export class Association<T> {
-  constructor(private readonly builder: Builder<T>) {}
+  constructor(
+    private readonly builder: Builder<T>,
+    private readonly key?: keyof T
+  ) {}
 
-  build<K extends keyof T | undefined = undefined>(
-    key?: K
-  ): ValueOrObject<T, K> {
+  build(): T | ValueOf<T> {
     const built = this.builder.build();
 
-    if (key) {
-      return built[key] as ValueOrObject<T, K>;
+    if (this.key) {
+      return built[this.key];
     }
 
-    return built as ValueOrObject<T, K>;
+    return built;
   }
 }

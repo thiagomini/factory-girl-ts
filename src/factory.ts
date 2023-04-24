@@ -1,18 +1,17 @@
 import { merge } from "lodash";
 import type { PartialDeep } from "type-fest";
-import { Associate, Associator, Builder } from "./interfaces";
+import { Association } from "./association";
+import { Associator, Builder, DefaultAttributesFactory } from "./interfaces";
 
-export class Factory<T> implements Builder<T>, Associator<T> {
-  constructor(private readonly defaultAttributesFactory: () => T) {}
+export class Factory<T extends Record<string, unknown>>
+  implements Builder<T>, Associator<T>
+{
+  constructor(
+    private readonly defaultAttributesFactory: DefaultAttributesFactory<T>
+  ) {}
 
-  associate<K extends keyof T>(key?: K | undefined): Associate<T, K> {
-    const associatedType = this.defaultAttributesFactory();
-
-    if (key) {
-      return () => associatedType[key];
-    }
-
-    return () => associatedType;
+  associate<K extends keyof T>(key?: K | undefined): Association<T> {
+    return new Association(this, key);
   }
 
   build(override?: PartialDeep<T>): T {
@@ -27,7 +26,7 @@ export class Factory<T> implements Builder<T>, Associator<T> {
     for (const prop in attributes) {
       const value = attributes[prop];
       if (isAssociation(value)) {
-        defaultWithAssociations[prop] = value();
+        defaultWithAssociations[prop] = value.build();
       } else {
         defaultWithAssociations[prop] = value;
       }
@@ -37,8 +36,6 @@ export class Factory<T> implements Builder<T>, Associator<T> {
   }
 }
 
-function isAssociation<T>(
-  value: T | Associate<T, keyof T>
-): value is Associate<T, keyof T> {
-  return typeof value === "function";
+function isAssociation<T>(value: T | Association<T>): value is Association<T> {
+  return value instanceof Association;
 }

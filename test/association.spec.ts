@@ -38,10 +38,10 @@ describe("Association", () => {
         age: 20,
       }),
     };
-    const association = new Association<User>(builder);
+    const association = new Association<User>(builder, "name");
 
     // Act
-    const userName = association.build("name");
+    const userName = association.build();
 
     // Assert
     expect(userName).toBe("John Doe");
