@@ -5,11 +5,11 @@ import { Associate, Associator, Builder } from "./interfaces";
 export class Factory<T> implements Builder<T>, Associator<T> {
   constructor(private readonly defaultAttributesFactory: () => T) {}
 
-  associate<K extends keyof T>(keyOrType?: K | undefined): Associate<T, K> {
+  associate<K extends keyof T>(key?: K | undefined): Associate<T, K> {
     const associatedType = this.defaultAttributesFactory();
 
-    if (keyOrType) {
-      return () => associatedType[keyOrType];
+    if (key) {
+      return () => associatedType[key];
     }
 
     return () => associatedType;

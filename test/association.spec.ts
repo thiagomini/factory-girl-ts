@@ -28,4 +28,22 @@ describe("Association", () => {
       age: 20,
     });
   });
+
+  it("returns the associated entity attribute", () => {
+    // Arrange
+    const builder: Builder<User> = {
+      build: () => ({
+        name: "John Doe",
+        email: "test@mail.com",
+        age: 20,
+      }),
+    };
+    const association = new Association<User>(builder);
+
+    // Act
+    const userName = association.build("name");
+
+    // Assert
+    expect(userName).toBe("John Doe");
+  });
 });
