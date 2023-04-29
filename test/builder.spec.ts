@@ -108,3 +108,25 @@ describe("Builder", () => {
     });
   });
 });
+
+describe("BuilderMany", () => {
+  it("should build many entities", () => {
+    // Arrange
+    const userAttributes = {
+      name: "John Doe",
+      email: "test@mail.com",
+      address: {
+        street: "Main Street",
+        number: 123,
+        city: "New York",
+      },
+    };
+    const userFactory = FactoryGirl.define<User>(() => userAttributes);
+
+    // Act
+    const users = userFactory.buildMany(2);
+
+    // Assert
+    expect(users).toEqual([userAttributes, userAttributes]);
+  });
+});

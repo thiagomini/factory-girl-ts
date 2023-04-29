@@ -1,10 +1,15 @@
 import { merge } from "lodash";
 import type { PartialDeep } from "type-fest";
 import { Association } from "./association";
-import { Associator, Builder, DefaultAttributesFactory } from "./interfaces";
+import {
+  Associator,
+  Builder,
+  BuilderMany,
+  DefaultAttributesFactory,
+} from "./interfaces";
 
 export class Factory<T extends Record<string, unknown>>
-  implements Builder<T>, Associator<T>
+  implements Builder<T>, Associator<T>, BuilderMany<T>
 {
   constructor(
     private readonly defaultAttributesFactory: DefaultAttributesFactory<T>
@@ -17,6 +22,10 @@ export class Factory<T extends Record<string, unknown>>
   build(override?: PartialDeep<T>): T {
     const associations = this.resolveAssociations();
     return merge(associations, override);
+  }
+
+  buildMany(count: number, _partials?: PartialDeep<T>[]): T[] {
+    return Array.from({ length: count }).map(() => this.build());
   }
 
   private resolveAssociations(): T {
