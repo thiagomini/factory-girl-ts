@@ -115,7 +115,7 @@ describe('Builder', () => {
     };
     const userAttributes = {
       name: 'John Doe',
-      email: 'user@company.com',
+      email: 'user@mail.com',
       address: {
         street: 'Main Street',
         number: 123,
@@ -234,6 +234,48 @@ describe('BuilderMany', () => {
       {
         ...userAttributes,
         email: 'modified-email@mail.com',
+      },
+    ]);
+  });
+
+  it('builds with transient parameters', () => {
+    // Arrange
+    type UserTransientParams = {
+      companyUser: boolean;
+    };
+    const userAttributes = {
+      name: 'John Doe',
+      email: 'user@mail.com',
+      address: {
+        street: 'Main Street',
+        number: 123,
+        city: 'New York',
+      },
+    };
+
+    const userFactory = FactoryGirl.define<User, UserTransientParams>(
+      ({ transientParams }) => {
+        return {
+          ...userAttributes,
+          email: transientParams?.companyUser
+            ? 'user@company.com'
+            : userAttributes.email,
+        };
+      },
+    );
+
+    // Act
+    const users = userFactory.buildMany(2, undefined, { companyUser: true });
+
+    // Assert
+    expect(users).toEqual([
+      {
+        ...userAttributes,
+        email: 'user@company.com',
+      },
+      {
+        ...userAttributes,
+        email: 'user@company.com',
       },
     ]);
   });

@@ -25,14 +25,20 @@ export class Factory<T extends Dictionary, P extends Dictionary>
     return merge(associations, override);
   }
 
-  buildMany(count: number, partials?: PartialDeep<T>[] | PartialDeep<T>): T[] {
+  buildMany(
+    count: number,
+    partials?: PartialDeep<T>[] | PartialDeep<T>,
+    additionalParams?: P,
+  ): T[] {
     if (Array.isArray(partials)) {
       return Array.from({ length: count }).map((_, index: number) =>
         this.build(partials?.[index]),
       );
     }
 
-    return Array.from({ length: count }).map(() => this.build(partials));
+    return Array.from({ length: count }).map(() =>
+      this.build(partials, additionalParams),
+    );
   }
 
   private resolveAssociations(additionalParams?: P): T {
