@@ -1,3 +1,4 @@
+import { ObjectAdapter } from '@src/adapters/object.adapter';
 import { Association, Builder } from '@src/index';
 
 type User = {
@@ -16,7 +17,7 @@ describe('Association', () => {
         age: 20,
       }),
     };
-    const association = new Association<User>(builder);
+    const association = new Association<User>(builder, new ObjectAdapter());
 
     // Act
     const user = association.build();
@@ -38,7 +39,11 @@ describe('Association', () => {
         age: 20,
       }),
     };
-    const association = new Association<User>(builder, 'name');
+    const association = new Association<User>(
+      builder,
+      new ObjectAdapter(),
+      'name',
+    );
 
     // Act
     const userName = association.build();

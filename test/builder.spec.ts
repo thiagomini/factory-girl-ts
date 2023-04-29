@@ -1,4 +1,5 @@
 import { FactoryGirl } from '@src/factory-girl';
+import { plainObject } from '@src/utils';
 
 type User = {
   name: string;
@@ -27,7 +28,7 @@ function buildUserAttributes(): User {
 describe('Builder', () => {
   it('should build the given type with all properties', () => {
     // Arrange
-    const userFactory = FactoryGirl.define<User>(() => {
+    const userFactory = FactoryGirl.define(plainObject<User>(), () => {
       return {
         name: 'John Doe',
         email: 'test@mail.com',
@@ -56,7 +57,7 @@ describe('Builder', () => {
 
   it('should build with deep merged partial properties', () => {
     // Arrange
-    const userFactory = FactoryGirl.define<User>(() => {
+    const userFactory = FactoryGirl.define(plainObject<User>(), () => {
       return {
         name: 'John Doe',
         email: 'test@mail.com',
@@ -90,14 +91,14 @@ describe('Builder', () => {
 
   it('should build with associated factory', () => {
     // Arrange
-    const addressFactory = FactoryGirl.define<Address>(() => {
+    const addressFactory = FactoryGirl.define(plainObject<Address>(), () => {
       return {
         street: 'Main Street',
         number: 123,
         city: 'New York',
       };
     });
-    const userFactory = FactoryGirl.define<User>(() => {
+    const userFactory = FactoryGirl.define(plainObject<User>(), () => {
       return {
         name: 'John Doe',
         email: 'test@mail.com',
@@ -128,6 +129,7 @@ describe('Builder', () => {
     const userAttributes = buildUserAttributes();
 
     const userFactory = FactoryGirl.define<User, UserTransientParams>(
+      plainObject<User>(),
       ({ transientParams }) => {
         return {
           ...userAttributes,
@@ -153,7 +155,10 @@ describe('BuilderMany', () => {
   it('should build many entities', () => {
     // Arrange
     const userAttributes = buildUserAttributes();
-    const userFactory = FactoryGirl.define<User>(() => userAttributes);
+    const userFactory = FactoryGirl.define(
+      plainObject<User>(),
+      () => userAttributes,
+    );
 
     // Act
     const users = userFactory.buildMany(2);
@@ -165,7 +170,10 @@ describe('BuilderMany', () => {
   it('should build many entities with given properties', () => {
     // Arrange
     const userAttributes = buildUserAttributes();
-    const userFactory = FactoryGirl.define<User>(() => userAttributes);
+    const userFactory = FactoryGirl.define(
+      plainObject<User>(),
+      () => userAttributes,
+    );
 
     // Act
     const users = userFactory.buildMany(2, [
@@ -198,7 +206,10 @@ describe('BuilderMany', () => {
   it('should build many entities with the same properties', () => {
     // Arrange
     const userAttributes = buildUserAttributes();
-    const userFactory = FactoryGirl.define<User>(() => userAttributes);
+    const userFactory = FactoryGirl.define(
+      plainObject<User>(),
+      () => userAttributes,
+    );
 
     // Act
     const users = userFactory.buildMany(2, {
@@ -227,7 +238,7 @@ describe('BuilderMany', () => {
     const userFactoryWithTransient = FactoryGirl.define<
       User,
       UserTransientParams
-    >(({ transientParams }) => {
+    >(plainObject<User>(), ({ transientParams }) => {
       return {
         ...userAttributes,
         email: transientParams?.companyUser
