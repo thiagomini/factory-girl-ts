@@ -7,11 +7,10 @@ import {
   BuilderMany,
   DefaultAttributesFactory,
 } from './interfaces';
+import { Dictionary } from './types';
 
-export class Factory<
-  T extends Record<string, unknown>,
-  P extends Record<string, unknown>,
-> implements Builder<T, P>, Associator<T>, BuilderMany<T>
+export class Factory<T extends Dictionary, P extends Dictionary>
+  implements Builder<T, P>, Associator<T>, BuilderMany<T>
 {
   constructor(
     private readonly defaultAttributesFactory: DefaultAttributesFactory<T, P>,
@@ -40,7 +39,7 @@ export class Factory<
     const attributes = this.defaultAttributesFactory({
       transientParams: additionalParams,
     });
-    const defaultWithAssociations: Record<string, unknown> = {};
+    const defaultWithAssociations: Dictionary = {};
 
     for (const prop in attributes) {
       const value = attributes[prop];

@@ -1,8 +1,9 @@
+import { Dictionary } from '@src/types';
 import { ValueOf } from 'type-fest';
 import { Builder } from './interfaces';
-export class Association<T> {
+export class Association<T, P = Dictionary> {
   constructor(
-    private readonly builder: Builder<T>,
+    private readonly builder: Builder<T, P>,
     private readonly key?: keyof T,
   ) {}
 
