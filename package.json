@@ -11,6 +11,7 @@
   },
   "scripts": {
     "test": "vitest --config ./vitest.config.ts",
+    "test:e2e": "vitest --config ./vitest.e2e.config.ts",
     "prebuild": "rimraf dist",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint . --ext .ts",
@@ -36,7 +37,10 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^4.2.1",
     "lodash": "^4.17.21",
+    "pg": "^8.10.0",
+    "pg-hstore": "^2.3.4",
     "prettier": "^2.8.7",
+    "sequelize": "^6.31.0",
     "type-fest": "^3.8.0",
     "typescript": "^5.0.4",
     "vitest": "^0.30.1"
