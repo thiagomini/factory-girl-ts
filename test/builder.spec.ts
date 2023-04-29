@@ -170,4 +170,35 @@ describe('BuilderMany', () => {
       },
     ]);
   });
+
+  it('should build many entities with the same properties', () => {
+    // Arrange
+    const userAttributes = {
+      name: 'John Doe',
+      email: 'test@mail.com',
+      address: {
+        street: 'Main Street',
+        number: 123,
+        city: 'New York',
+      },
+    };
+    const userFactory = FactoryGirl.define<User>(() => userAttributes);
+
+    // Act
+    const users = userFactory.buildMany(2, {
+      email: 'modified-email@mail.com',
+    });
+
+    // Assert
+    expect(users).toEqual([
+      {
+        ...userAttributes,
+        email: 'modified-email@mail.com',
+      },
+      {
+        ...userAttributes,
+        email: 'modified-email@mail.com',
+      },
+    ]);
+  });
 });

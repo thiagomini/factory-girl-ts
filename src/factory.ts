@@ -24,10 +24,14 @@ export class Factory<T extends Record<string, unknown>>
     return merge(associations, override);
   }
 
-  buildMany(count: number, partials?: PartialDeep<T>[]): T[] {
-    return Array.from({ length: count }).map((_, index: number) =>
-      this.build(partials?.[index]),
-    );
+  buildMany(count: number, partials?: PartialDeep<T>[] | PartialDeep<T>): T[] {
+    if (Array.isArray(partials)) {
+      return Array.from({ length: count }).map((_, index: number) =>
+        this.build(partials?.[index]),
+      );
+    }
+
+    return Array.from({ length: count }).map(() => this.build(partials));
   }
 
   private resolveAssociations(): T {
