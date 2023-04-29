@@ -8,19 +8,21 @@ import {
   DefaultAttributesFactory,
 } from './interfaces';
 
-export class Factory<T extends Record<string, unknown>>
-  implements Builder<T>, Associator<T>, BuilderMany<T>
+export class Factory<
+  T extends Record<string, unknown>,
+  P extends Record<string, unknown>,
+> implements Builder<T, P>, Associator<T>, BuilderMany<T>
 {
   constructor(
-    private readonly defaultAttributesFactory: DefaultAttributesFactory<T>,
+    private readonly defaultAttributesFactory: DefaultAttributesFactory<T, P>,
   ) {}
 
   associate<K extends keyof T>(key?: K | undefined): Association<T> {
     return new Association(this, key);
   }
 
-  build(override?: PartialDeep<T>): T {
-    const associations = this.resolveAssociations();
+  build(override?: PartialDeep<T>, additionalParams?: P): T {
+    const associations = this.resolveAssociations(additionalParams);
     return merge(associations, override);
   }
 
@@ -34,8 +36,10 @@ export class Factory<T extends Record<string, unknown>>
     return Array.from({ length: count }).map(() => this.build(partials));
   }
 
-  private resolveAssociations(): T {
-    const attributes = this.defaultAttributesFactory();
+  private resolveAssociations(additionalParams?: P): T {
+    const attributes = this.defaultAttributesFactory({
+      transientParams: additionalParams,
+    });
     const defaultWithAssociations: Record<string, unknown> = {};
 
     for (const prop in attributes) {

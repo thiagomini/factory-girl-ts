@@ -107,6 +107,42 @@ describe('Builder', () => {
       },
     });
   });
+
+  it('builds with transient parameters', () => {
+    // Arrange
+    type UserTransientParams = {
+      companyUser: boolean;
+    };
+    const userAttributes = {
+      name: 'John Doe',
+      email: 'user@company.com',
+      address: {
+        street: 'Main Street',
+        number: 123,
+        city: 'New York',
+      },
+    };
+
+    const userFactory = FactoryGirl.define<User, UserTransientParams>(
+      ({ transientParams }) => {
+        return {
+          ...userAttributes,
+          email: transientParams?.companyUser
+            ? 'user@company.com'
+            : userAttributes.email,
+        };
+      },
+    );
+
+    // Act
+    const user = userFactory.build({}, { companyUser: true });
+
+    // Assert
+    expect(user).toEqual({
+      ...userAttributes,
+      email: 'user@company.com',
+    });
+  });
 });
 
 describe('BuilderMany', () => {
