@@ -1,4 +1,4 @@
-import { FactoryGirl } from "@src/factory-girl";
+import { FactoryGirl } from '@src/factory-girl';
 
 type User = {
   name: string;
@@ -12,17 +12,17 @@ type Address = {
   city: string;
 };
 
-describe("Builder", () => {
-  it("should build the given type with all properties", () => {
+describe('Builder', () => {
+  it('should build the given type with all properties', () => {
     // Arrange
     const userFactory = FactoryGirl.define<User>(() => {
       return {
-        name: "John Doe",
-        email: "test@mail.com",
+        name: 'John Doe',
+        email: 'test@mail.com',
         address: {
-          street: "Main Street",
+          street: 'Main Street',
           number: 123,
-          city: "New York",
+          city: 'New York',
         },
       };
     });
@@ -32,33 +32,33 @@ describe("Builder", () => {
 
     // Assert
     expect(user).toEqual({
-      name: "John Doe",
-      email: "test@mail.com",
+      name: 'John Doe',
+      email: 'test@mail.com',
       address: {
-        street: "Main Street",
+        street: 'Main Street',
         number: 123,
-        city: "New York",
+        city: 'New York',
       },
     });
   });
 
-  it("should build with deep merged partial properties", () => {
+  it('should build with deep merged partial properties', () => {
     // Arrange
     const userFactory = FactoryGirl.define<User>(() => {
       return {
-        name: "John Doe",
-        email: "test@mail.com",
+        name: 'John Doe',
+        email: 'test@mail.com',
         address: {
-          street: "Main Street",
+          street: 'Main Street',
           number: 123,
-          city: "New York",
+          city: 'New York',
         },
       };
     });
 
     // Act
     const user = userFactory.build({
-      name: "Jane Doe",
+      name: 'Jane Doe',
       address: {
         number: 456,
       },
@@ -66,29 +66,29 @@ describe("Builder", () => {
 
     // Assert
     expect(user).toEqual({
-      name: "Jane Doe",
-      email: "test@mail.com",
+      name: 'Jane Doe',
+      email: 'test@mail.com',
       address: {
-        street: "Main Street",
+        street: 'Main Street',
         number: 456,
-        city: "New York",
+        city: 'New York',
       },
     });
   });
 
-  it("should build with associated factory", () => {
+  it('should build with associated factory', () => {
     // Arrange
     const addressFactory = FactoryGirl.define<Address>(() => {
       return {
-        street: "Main Street",
+        street: 'Main Street',
         number: 123,
-        city: "New York",
+        city: 'New York',
       };
     });
     const userFactory = FactoryGirl.define<User>(() => {
       return {
-        name: "John Doe",
-        email: "test@mail.com",
+        name: 'John Doe',
+        email: 'test@mail.com',
         address: addressFactory.associate(),
       };
     });
@@ -98,27 +98,27 @@ describe("Builder", () => {
 
     // Assert
     expect(user).toEqual({
-      name: "John Doe",
-      email: "test@mail.com",
+      name: 'John Doe',
+      email: 'test@mail.com',
       address: {
-        street: "Main Street",
+        street: 'Main Street',
         number: 123,
-        city: "New York",
+        city: 'New York',
       },
     });
   });
 });
 
-describe("BuilderMany", () => {
-  it("should build many entities", () => {
+describe('BuilderMany', () => {
+  it('should build many entities', () => {
     // Arrange
     const userAttributes = {
-      name: "John Doe",
-      email: "test@mail.com",
+      name: 'John Doe',
+      email: 'test@mail.com',
       address: {
-        street: "Main Street",
+        street: 'Main Street',
         number: 123,
-        city: "New York",
+        city: 'New York',
       },
     };
     const userFactory = FactoryGirl.define<User>(() => userAttributes);

@@ -1,18 +1,18 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
     globals: true,
     alias: {
-      "@src": "./src",
-      "@test": "./test",
+      '@src': './src',
+      '@test': './test',
     },
-    root: "./",
+    root: './',
   },
   resolve: {
     alias: {
-      "@src": "./src",
-      "@test": "./test",
+      '@src': './src',
+      '@test': './test',
     },
   },
 });

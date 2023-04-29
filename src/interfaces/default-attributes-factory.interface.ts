@@ -1,4 +1,4 @@
-import { Association } from "@src/association";
+import { Association } from '@src/association';
 
 export type DefaultAttributesFactory<T> = () =>
   | T

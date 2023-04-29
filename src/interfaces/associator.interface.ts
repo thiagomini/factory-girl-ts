@@ -1,4 +1,4 @@
-import { Association } from "@src/association";
+import { Association } from '@src/association';
 
 export type Associate<T, K extends keyof T> = () => T | T[K];
 

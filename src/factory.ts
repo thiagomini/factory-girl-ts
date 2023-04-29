@@ -1,18 +1,18 @@
-import { merge } from "lodash";
-import type { PartialDeep } from "type-fest";
-import { Association } from "./association";
+import { merge } from 'lodash';
+import type { PartialDeep } from 'type-fest';
+import { Association } from './association';
 import {
   Associator,
   Builder,
   BuilderMany,
   DefaultAttributesFactory,
-} from "./interfaces";
+} from './interfaces';
 
 export class Factory<T extends Record<string, unknown>>
   implements Builder<T>, Associator<T>, BuilderMany<T>
 {
   constructor(
-    private readonly defaultAttributesFactory: DefaultAttributesFactory<T>
+    private readonly defaultAttributesFactory: DefaultAttributesFactory<T>,
   ) {}
 
   associate<K extends keyof T>(key?: K | undefined): Association<T> {

@@ -1,4 +1,4 @@
-import { Association, Builder } from "@src/index";
+import { Association, Builder } from '@src/index';
 
 type User = {
   name: string;
@@ -6,13 +6,13 @@ type User = {
   age: number;
 };
 
-describe("Association", () => {
-  it("builds the associated entity", () => {
+describe('Association', () => {
+  it('builds the associated entity', () => {
     // Arrange
     const builder: Builder<User> = {
       build: () => ({
-        name: "John Doe",
-        email: "test@mail.com",
+        name: 'John Doe',
+        email: 'test@mail.com',
         age: 20,
       }),
     };
@@ -23,27 +23,27 @@ describe("Association", () => {
 
     // Assert
     expect(user).toEqual({
-      name: "John Doe",
-      email: "test@mail.com",
+      name: 'John Doe',
+      email: 'test@mail.com',
       age: 20,
     });
   });
 
-  it("returns the associated entity attribute", () => {
+  it('returns the associated entity attribute', () => {
     // Arrange
     const builder: Builder<User> = {
       build: () => ({
-        name: "John Doe",
-        email: "test@mail.com",
+        name: 'John Doe',
+        email: 'test@mail.com',
         age: 20,
       }),
     };
-    const association = new Association<User>(builder, "name");
+    const association = new Association<User>(builder, 'name');
 
     // Act
     const userName = association.build();
 
     // Assert
-    expect(userName).toBe("John Doe");
+    expect(userName).toBe('John Doe');
   });
 });

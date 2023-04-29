@@ -1,9 +1,9 @@
-import { ValueOf } from "type-fest";
-import { Builder } from "./interfaces";
+import { ValueOf } from 'type-fest';
+import { Builder } from './interfaces';
 export class Association<T> {
   constructor(
     private readonly builder: Builder<T>,
-    private readonly key?: keyof T
+    private readonly key?: keyof T,
   ) {}
 
   build(): T | ValueOf<T> {
