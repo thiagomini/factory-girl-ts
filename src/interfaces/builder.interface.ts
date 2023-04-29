@@ -5,6 +5,10 @@ export interface Builder<T, P = unknown> {
   build(partial?: PartialDeep<T>, params?: AdditionalParams<P>): T;
 }
 
-export interface BuilderMany<T> {
-  buildMany(count: number, partials?: PartialDeep<T>[] | PartialDeep<T>): T[];
+export interface BuilderMany<T, P = unknown> {
+  buildMany(
+    count: number,
+    partials?: PartialDeep<T>[] | PartialDeep<T>,
+    params?: AdditionalParams<P>,
+  ): T[];
 }

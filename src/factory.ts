@@ -10,7 +10,7 @@ import {
 import { Dictionary } from './types';
 
 export class Factory<T extends Dictionary, P extends Dictionary>
-  implements Builder<T, P>, Associator<T>, BuilderMany<T>
+  implements Builder<T, P>, Associator<T>, BuilderMany<T, P>
 {
   constructor(
     private readonly defaultAttributesFactory: DefaultAttributesFactory<T, P>,
