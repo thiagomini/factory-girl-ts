@@ -32,7 +32,7 @@ export class Factory<T extends Dictionary, P extends Dictionary>
   ): T[] {
     if (Array.isArray(partials)) {
       return Array.from({ length: count }).map((_, index: number) =>
-        this.build(partials?.[index]),
+        this.build(partials?.[index], additionalParams),
       );
     }
 

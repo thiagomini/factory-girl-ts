@@ -329,4 +329,64 @@ describe('BuilderMany', () => {
       },
     ]);
   });
+
+  it('builds with array of custom parameters AND transient parameters', () => {
+    // Arrange
+    type UserTransientParams = {
+      companyUser: boolean;
+    };
+    const userAttributes = {
+      name: 'John Doe',
+      email: 'user@mail.com',
+      address: {
+        street: 'Main Street',
+        number: 123,
+        city: 'New York',
+      },
+    };
+
+    const userFactory = FactoryGirl.define<User, UserTransientParams>(
+      ({ transientParams }) => {
+        return {
+          ...userAttributes,
+          email: transientParams?.companyUser
+            ? 'user@company.com'
+            : userAttributes.email,
+        };
+      },
+    );
+
+    // Act
+    const users = userFactory.buildMany(
+      2,
+      [
+        {
+          name: 'Jane Doe',
+        },
+        {
+          address: {
+            number: 456,
+          },
+        },
+      ],
+      { companyUser: true },
+    );
+
+    // Assert
+    expect(users).toEqual([
+      {
+        ...userAttributes,
+        name: 'Jane Doe',
+        email: 'user@company.com',
+      },
+      {
+        ...userAttributes,
+        address: {
+          ...userAttributes.address,
+          number: 456,
+        },
+        email: 'user@company.com',
+      },
+    ]);
+  });
 });
