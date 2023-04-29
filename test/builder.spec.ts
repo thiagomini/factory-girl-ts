@@ -12,6 +12,18 @@ type Address = {
   city: string;
 };
 
+function buildUserAttributes(): User {
+  return {
+    name: 'John Doe',
+    email: 'user@mail.com',
+    address: {
+      street: 'Main Street',
+      number: 123,
+      city: 'New York',
+    },
+  };
+}
+
 describe('Builder', () => {
   it('should build the given type with all properties', () => {
     // Arrange
@@ -113,15 +125,7 @@ describe('Builder', () => {
     type UserTransientParams = {
       companyUser: boolean;
     };
-    const userAttributes = {
-      name: 'John Doe',
-      email: 'user@mail.com',
-      address: {
-        street: 'Main Street',
-        number: 123,
-        city: 'New York',
-      },
-    };
+    const userAttributes = buildUserAttributes();
 
     const userFactory = FactoryGirl.define<User, UserTransientParams>(
       ({ transientParams }) => {
@@ -148,15 +152,7 @@ describe('Builder', () => {
 describe('BuilderMany', () => {
   it('should build many entities', () => {
     // Arrange
-    const userAttributes = {
-      name: 'John Doe',
-      email: 'test@mail.com',
-      address: {
-        street: 'Main Street',
-        number: 123,
-        city: 'New York',
-      },
-    };
+    const userAttributes = buildUserAttributes();
     const userFactory = FactoryGirl.define<User>(() => userAttributes);
 
     // Act
@@ -168,15 +164,7 @@ describe('BuilderMany', () => {
 
   it('should build many entities with given properties', () => {
     // Arrange
-    const userAttributes = {
-      name: 'John Doe',
-      email: 'test@mail.com',
-      address: {
-        street: 'Main Street',
-        number: 123,
-        city: 'New York',
-      },
-    };
+    const userAttributes = buildUserAttributes();
     const userFactory = FactoryGirl.define<User>(() => userAttributes);
 
     // Act
@@ -209,15 +197,7 @@ describe('BuilderMany', () => {
 
   it('should build many entities with the same properties', () => {
     // Arrange
-    const userAttributes = {
-      name: 'John Doe',
-      email: 'test@mail.com',
-      address: {
-        street: 'Main Street',
-        number: 123,
-        city: 'New York',
-      },
-    };
+    const userAttributes = buildUserAttributes();
     const userFactory = FactoryGirl.define<User>(() => userAttributes);
 
     // Act
@@ -238,155 +218,101 @@ describe('BuilderMany', () => {
     ]);
   });
 
-  it('builds with transient parameters', () => {
-    // Arrange
+  describe('when using transient params', () => {
     type UserTransientParams = {
       companyUser: boolean;
     };
-    const userAttributes = {
-      name: 'John Doe',
-      email: 'user@mail.com',
-      address: {
-        street: 'Main Street',
-        number: 123,
-        city: 'New York',
-      },
-    };
+    const userAttributes = buildUserAttributes();
 
-    const userFactory = FactoryGirl.define<User, UserTransientParams>(
-      ({ transientParams }) => {
-        return {
+    const userFactoryWithTransient = FactoryGirl.define<
+      User,
+      UserTransientParams
+    >(({ transientParams }) => {
+      return {
+        ...userAttributes,
+        email: transientParams?.companyUser
+          ? 'user@company.com'
+          : userAttributes.email,
+      };
+    });
+
+    it('builds with transient parameters', () => {
+      // Act
+      const users = userFactoryWithTransient.buildMany(2, undefined, {
+        companyUser: true,
+      });
+
+      // Assert
+      expect(users).toEqual([
+        {
           ...userAttributes,
-          email: transientParams?.companyUser
-            ? 'user@company.com'
-            : userAttributes.email,
-        };
-      },
-    );
-
-    // Act
-    const users = userFactory.buildMany(2, undefined, { companyUser: true });
-
-    // Assert
-    expect(users).toEqual([
-      {
-        ...userAttributes,
-        email: 'user@company.com',
-      },
-      {
-        ...userAttributes,
-        email: 'user@company.com',
-      },
-    ]);
-  });
-
-  it('builds with custom and transient parameters', () => {
-    // Arrange
-    type UserTransientParams = {
-      companyUser: boolean;
-    };
-    const userAttributes = {
-      name: 'John Doe',
-      email: 'user@mail.com',
-      address: {
-        street: 'Main Street',
-        number: 123,
-        city: 'New York',
-      },
-    };
-
-    const userFactory = FactoryGirl.define<User, UserTransientParams>(
-      ({ transientParams }) => {
-        return {
+          email: 'user@company.com',
+        },
+        {
           ...userAttributes,
-          email: transientParams?.companyUser
-            ? 'user@company.com'
-            : userAttributes.email,
-        };
-      },
-    );
+          email: 'user@company.com',
+        },
+      ]);
+    });
 
-    // Act
-    const users = userFactory.buildMany(
-      2,
-      {
-        name: 'Jane Doe',
-      },
-      { companyUser: true },
-    );
-
-    // Assert
-    expect(users).toEqual([
-      {
-        ...userAttributes,
-        name: 'Jane Doe',
-        email: 'user@company.com',
-      },
-      {
-        ...userAttributes,
-        name: 'Jane Doe',
-        email: 'user@company.com',
-      },
-    ]);
-  });
-
-  it('builds with array of custom parameters AND transient parameters', () => {
-    // Arrange
-    type UserTransientParams = {
-      companyUser: boolean;
-    };
-    const userAttributes = {
-      name: 'John Doe',
-      email: 'user@mail.com',
-      address: {
-        street: 'Main Street',
-        number: 123,
-        city: 'New York',
-      },
-    };
-
-    const userFactory = FactoryGirl.define<User, UserTransientParams>(
-      ({ transientParams }) => {
-        return {
-          ...userAttributes,
-          email: transientParams?.companyUser
-            ? 'user@company.com'
-            : userAttributes.email,
-        };
-      },
-    );
-
-    // Act
-    const users = userFactory.buildMany(
-      2,
-      [
+    it('builds with custom and transient parameters', () => {
+      // Act
+      const users = userFactoryWithTransient.buildMany(
+        2,
         {
           name: 'Jane Doe',
         },
+        { companyUser: true },
+      );
+
+      // Assert
+      expect(users).toEqual([
         {
+          ...userAttributes,
+          name: 'Jane Doe',
+          email: 'user@company.com',
+        },
+        {
+          ...userAttributes,
+          name: 'Jane Doe',
+          email: 'user@company.com',
+        },
+      ]);
+    });
+
+    it('builds with array of custom parameters AND transient parameters', () => {
+      // Act
+      const users = userFactoryWithTransient.buildMany(
+        2,
+        [
+          {
+            name: 'Jane Doe',
+          },
+          {
+            address: {
+              number: 456,
+            },
+          },
+        ],
+        { companyUser: true },
+      );
+
+      // Assert
+      expect(users).toEqual([
+        {
+          ...userAttributes,
+          name: 'Jane Doe',
+          email: 'user@company.com',
+        },
+        {
+          ...userAttributes,
           address: {
+            ...userAttributes.address,
             number: 456,
           },
+          email: 'user@company.com',
         },
-      ],
-      { companyUser: true },
-    );
-
-    // Assert
-    expect(users).toEqual([
-      {
-        ...userAttributes,
-        name: 'Jane Doe',
-        email: 'user@company.com',
-      },
-      {
-        ...userAttributes,
-        address: {
-          ...userAttributes.address,
-          number: 456,
-        },
-        email: 'user@company.com',
-      },
-    ]);
+      ]);
+    });
   });
 });
