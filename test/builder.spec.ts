@@ -129,4 +129,45 @@ describe('BuilderMany', () => {
     // Assert
     expect(users).toEqual([userAttributes, userAttributes]);
   });
+
+  it('should build many entities with given properties', () => {
+    // Arrange
+    const userAttributes = {
+      name: 'John Doe',
+      email: 'test@mail.com',
+      address: {
+        street: 'Main Street',
+        number: 123,
+        city: 'New York',
+      },
+    };
+    const userFactory = FactoryGirl.define<User>(() => userAttributes);
+
+    // Act
+    const users = userFactory.buildMany(2, [
+      {
+        name: 'Jane Doe',
+      },
+      {
+        address: {
+          number: 456,
+        },
+      },
+    ]);
+
+    // Assert
+    expect(users).toEqual([
+      {
+        ...userAttributes,
+        name: 'Jane Doe',
+      },
+      {
+        ...userAttributes,
+        address: {
+          ...userAttributes.address,
+          number: 456,
+        },
+      },
+    ]);
+  });
 });
