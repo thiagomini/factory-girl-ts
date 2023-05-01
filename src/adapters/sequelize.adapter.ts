@@ -1,12 +1,22 @@
 import { ModelAdapter } from '@src/adapters/adapter.interface';
-import { Model } from 'sequelize';
-import { PartialDeep } from 'type-fest';
+import { Model, ModelStatic } from 'sequelize';
+import { Class, PartialDeep } from 'type-fest';
 
-export class SequelizeAdapter<T extends Model> implements ModelAdapter<T> {
-  get<K extends keyof T>(model: T, key: K): T[K] {
+export class SequelizeAdapter<
+  TEntity extends Model,
+  T extends ModelStatic<TEntity>,
+> implements ModelAdapter<T, Model>
+{
+  get<K extends keyof Model>(model: Model, key: K): Model[K] {
     return model.get(key);
   }
-  set(model: T, props: PartialDeep<T, { recurseIntoArrays: true }>): T {
-    return model.set(props);
+  build(
+    ModelClass: T,
+    props: PartialDeep<
+      T extends Class<infer U> ? U : T,
+      { recurseIntoArrays: true }
+    >,
+  ): Model {
+    return ModelClass.build(props);
   }
 }

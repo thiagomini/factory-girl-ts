@@ -1,42 +1,48 @@
 import { ModelAdapter } from '@src/adapters/adapter.interface';
+import { InstanceOrInterface } from '@src/types/instance-or-interface.type';
 import { merge } from 'lodash';
 import type { PartialDeep } from 'type-fest';
 import { Association } from './association';
-import {
-  Associator,
-  Builder,
-  BuilderMany,
-  DefaultAttributesFactory,
-} from './interfaces';
+import { DefaultAttributesFactory } from './interfaces';
 import { Dictionary } from './types';
 
-export class Factory<T extends Dictionary, P extends Dictionary, ReturnType = T>
-  implements
-    Builder<T, P, ReturnType>,
-    Associator<T, P, ReturnType>,
-    BuilderMany<T, P, ReturnType>
-{
+export class Factory<
+  Model,
+  Attributes extends Dictionary,
+  Params extends Dictionary,
+  ReturnType = Attributes,
+> {
   constructor(
-    private readonly defaultAttributesFactory: DefaultAttributesFactory<T, P>,
-    private readonly model: ReturnType,
-    private readonly adapter: ModelAdapter<ReturnType>,
+    private readonly defaultAttributesFactory: DefaultAttributesFactory<
+      Attributes,
+      Params
+    >,
+    private readonly model: Model,
+    private readonly adapter: ModelAdapter<Model, ReturnType>,
   ) {}
 
   associate<K extends keyof ReturnType>(
     key?: K | undefined,
-  ): Association<T, P, ReturnType> {
-    return new Association<T, P, ReturnType>(this, this.adapter, key);
+  ): Association<Attributes, Params, ReturnType> {
+    return new Association<Attributes, Params, ReturnType>(
+      this,
+      this.adapter,
+      key,
+    );
   }
 
-  build(override?: PartialDeep<T>, additionalParams?: P): ReturnType {
+  build(
+    override?: PartialDeep<Attributes>,
+    additionalParams?: Params,
+  ): ReturnType {
     const attributesWithAssociations =
       this.resolveAssociations(additionalParams);
 
     const mergedAttributes = merge(attributesWithAssociations, override);
 
-    const finalResult = this.adapter.set(
+    const finalResult = this.adapter.build(
       this.model,
-      mergedAttributes as PartialDeep<ReturnType>,
+      mergedAttributes as PartialDeep<InstanceOrInterface<Model>>,
     );
 
     return finalResult;
@@ -44,8 +50,8 @@ export class Factory<T extends Dictionary, P extends Dictionary, ReturnType = T>
 
   buildMany(
     count: number,
-    partials?: PartialDeep<T>[] | PartialDeep<T>,
-    additionalParams?: P,
+    partials?: PartialDeep<Attributes>[] | PartialDeep<Attributes>,
+    additionalParams?: Params,
   ): ReturnType[] {
     if (Array.isArray(partials)) {
       return Array.from({ length: count }).map((_, index: number) =>
@@ -58,7 +64,7 @@ export class Factory<T extends Dictionary, P extends Dictionary, ReturnType = T>
     );
   }
 
-  private resolveAssociations(additionalParams?: P): T {
+  private resolveAssociations(additionalParams?: Params): Attributes {
     const attributes = this.defaultAttributesFactory({
       transientParams: additionalParams,
     });
@@ -73,7 +79,7 @@ export class Factory<T extends Dictionary, P extends Dictionary, ReturnType = T>
       }
     }
 
-    return defaultWithAssociations as T;
+    return defaultWithAssociations as Attributes;
   }
 }
 

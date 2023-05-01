@@ -1,9 +1,14 @@
+import { InstanceOrInterface } from '@src/types/instance-or-interface.type';
 import { PartialDeep } from 'type-fest';
 
-export interface ModelAdapter<TModel> {
-  get<K extends keyof TModel>(model: TModel, key: K): TModel[K];
-  set(
-    model: TModel,
-    props: PartialDeep<TModel, { recurseIntoArrays: true }>,
-  ): TModel;
+export interface ModelAdapter<ModelClass, ReturnType> {
+  build(
+    ModelClass: ModelClass,
+    props: PartialDeep<
+      InstanceOrInterface<ModelClass>,
+      { recurseIntoArrays: true }
+    >,
+  ): ReturnType;
+
+  get<K extends keyof ReturnType>(model: ReturnType, key: K): ReturnType[K];
 }
