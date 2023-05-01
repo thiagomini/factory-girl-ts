@@ -1,6 +1,14 @@
 import { SequelizeAdapter } from '@src/adapters/sequelize.adapter';
 import { FactoryGirl } from '@src/factory-girl';
-import { DataTypes, InferAttributes, Model, Sequelize } from 'sequelize';
+import {
+  CreationOptional,
+  DataTypes,
+  ForeignKey,
+  InferAttributes,
+  Model,
+  NonAttribute,
+  Sequelize,
+} from 'sequelize';
 const sequelize = new Sequelize(
   'postgres://postgres:pass123@localhost:5432/postgres',
   {
@@ -12,9 +20,11 @@ const sequelize = new Sequelize(
 );
 
 class User extends Model<InferAttributes<User>> {
-  declare id: number;
+  declare id: CreationOptional<number>;
   declare name: string;
   declare email: string;
+
+  declare addresses?: NonAttribute<Address[]>;
 }
 
 User.init(
@@ -41,12 +51,14 @@ User.init(
 );
 
 class Address extends Model<InferAttributes<Address>> {
-  declare id: number;
+  declare id: CreationOptional<number>;
   declare street: string;
   declare city: string;
   declare state: string;
   declare zip: string;
-  declare userId: number;
+  declare userId: ForeignKey<User['id']>;
+
+  declare user?: NonAttribute<User>;
 }
 
 Address.init(
@@ -99,7 +111,7 @@ describe('Sequelize Integration', () => {
     expect(user.get('email')).toEqual('some-email@mail.com');
   });
 
-  it('builds an Address model with relationship', async () => {
+  it('builds an Address model with relationship id', async () => {
     // Arrange
     const defaultAttributesFactory = () => ({
       id: 1,
