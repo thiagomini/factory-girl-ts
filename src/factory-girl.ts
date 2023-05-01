@@ -14,8 +14,8 @@ export class FactoryGirl {
 
   static define<
     ModelOrInterface,
-    Attributes extends Dictionary,
     Parameters extends Dictionary = Dictionary,
+    Attributes extends Dictionary = Dictionary,
     ReturnType extends InstanceOrInterface<ModelOrInterface> = InstanceOrInterface<ModelOrInterface>,
   >(
     model: ModelOrInterface,
