@@ -1,0 +1,10 @@
+{
+  "*.ts": [
+    "npx eslint 'src/**' --fix",
+    "npm run prettier",
+    "npm run test",
+    "npm run build"
+  ],
+  "*.md": ["npm run prettier"],
+  "*.json": ["npm run prettier"]
+}
