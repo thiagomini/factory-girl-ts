@@ -18,7 +18,8 @@
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "typecheck": "tsc --noEmit -p tsconfig.build.json"
   },
   "repository": {
     "type": "git",
