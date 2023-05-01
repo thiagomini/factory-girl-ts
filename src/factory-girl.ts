@@ -6,6 +6,12 @@ import { Factory } from './factory';
 import { DefaultAttributesFactory } from './interfaces';
 
 export class FactoryGirl {
+  static adapter: ModelAdapter<unknown, unknown> = new ObjectAdapter();
+
+  static setAdapter(adapter: ModelAdapter<unknown, unknown>): void {
+    this.adapter = adapter;
+  }
+
   static define<
     ModelOrInterface,
     Attributes extends Dictionary,
@@ -14,19 +20,11 @@ export class FactoryGirl {
   >(
     model: ModelOrInterface,
     defaultAttributesFactory: DefaultAttributesFactory<Attributes, Parameters>,
-    adapter?: ModelAdapter<ModelOrInterface, ReturnType>,
   ): Factory<ModelOrInterface, Attributes, Parameters, ReturnType> {
-    adapter =
-      adapter ??
-      (new ObjectAdapter<ModelOrInterface>() as unknown as ModelAdapter<
-        ModelOrInterface,
-        ReturnType
-      >);
-
     return new Factory<ModelOrInterface, Attributes, Parameters, ReturnType>(
       defaultAttributesFactory,
       model,
-      adapter ?? new ObjectAdapter<ModelOrInterface>(),
+      this.adapter as ModelAdapter<ModelOrInterface, ReturnType>,
     );
   }
 }

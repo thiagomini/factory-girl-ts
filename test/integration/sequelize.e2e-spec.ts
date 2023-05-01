@@ -11,7 +11,15 @@ const sequelize = new Sequelize(
   },
 );
 
-class User extends Model {}
+class User extends Model<{
+  id: number;
+  name: string;
+  email: string;
+}> {
+  public id!: number;
+  public name!: string;
+  public email!: string;
+}
 
 User.init(
   {
@@ -51,11 +59,9 @@ describe('Sequelize Integration', () => {
       email: 'some-email@mail.com',
     });
 
-    const userFactory = FactoryGirl.define(
-      User,
-      defaultAttributesFactory,
-      new SequelizeAdapter(),
-    );
+    FactoryGirl.setAdapter(new SequelizeAdapter());
+
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
 
     const user = userFactory.build();
 

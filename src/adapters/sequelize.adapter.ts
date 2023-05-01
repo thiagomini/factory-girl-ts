@@ -16,7 +16,7 @@ export class SequelizeAdapter<
       T extends Class<infer U> ? U : T,
       { recurseIntoArrays: true }
     >,
-  ): Model {
+  ): TEntity {
     return ModelClass.build(props);
   }
 }
