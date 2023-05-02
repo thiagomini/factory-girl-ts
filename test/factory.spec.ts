@@ -2,26 +2,40 @@ import { FactoryGirl } from '@src/factory-girl';
 import { plainObject } from '@src/utils';
 
 type User = {
+  id: number;
   name: string;
   email: string;
   address: Address;
 };
 
 type Address = {
+  id: number;
   street: string;
   number: number;
   city: string;
+  userId?: number;
 };
 
 function buildUserAttributes(): User {
   return {
+    id: 1,
     name: 'John Doe',
     email: 'user@mail.com',
     address: {
+      id: 1,
       street: 'Main Street',
       number: 123,
       city: 'New York',
     },
+  };
+}
+
+function buildAddressAttributes(): Address {
+  return {
+    id: 1,
+    street: 'Main Street',
+    number: 123,
+    city: 'New York',
   };
 }
 
@@ -343,6 +357,27 @@ describe('Factory', () => {
 
       // Assert
       expect(user).toEqual(userAttributes);
+    });
+
+    it('should create an entity with associations', async () => {
+      // Arrange
+      const userAttributes = buildUserAttributes();
+      const userFactory = FactoryGirl.define(
+        plainObject<User>(),
+        () => userAttributes,
+      );
+      const addressAttributes = buildAddressAttributes();
+      const addressFactory = FactoryGirl.define(plainObject<Address>(), () => ({
+        ...addressAttributes,
+        userId: userFactory.associate('id'),
+      }));
+
+      // Act
+      const address = await addressFactory.create();
+
+      // Assert
+      expect(address).toMatchObject(addressAttributes);
+      expect(address.userId).toBe(userAttributes.id);
     });
   });
 });
