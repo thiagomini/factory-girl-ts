@@ -397,6 +397,26 @@ describe('Factory', () => {
       expect(users).toEqual([userAttributes, userAttributes]);
     });
 
+    it('creates many entities with the same props', async () => {
+      // Arrange
+      const userAttributes = buildUserAttributes();
+      const userFactory = FactoryGirl.define(
+        plainObject<User>(),
+        () => userAttributes,
+      );
+
+      // Act
+      const users = await userFactory.createMany(2, {
+        name: 'same-name',
+      });
+
+      // Assert
+      expect(users).toMatchObject([
+        { name: 'same-name' },
+        { name: 'same-name' },
+      ]);
+    });
+
     it('creates many entities custom and transient parameters', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
