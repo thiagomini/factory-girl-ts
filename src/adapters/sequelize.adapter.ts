@@ -19,4 +19,8 @@ export class SequelizeAdapter<
   ): TEntity {
     return ModelClass.build(props);
   }
+
+  async save(model: Model): Promise<Model> {
+    return await model.save();
+  }
 }

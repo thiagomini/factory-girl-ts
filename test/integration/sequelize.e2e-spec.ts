@@ -16,6 +16,7 @@ const sequelize = new Sequelize(
       force: true,
       schema: 'public',
     },
+    logging: false,
   },
 );
 
@@ -83,6 +84,10 @@ Address.init(
 User.hasMany(Address, { foreignKey: 'userId' });
 
 describe('Sequelize Integration', () => {
+  beforeAll(async () => {
+    await sequelize.sync({ force: true });
+  });
+
   beforeEach(() => {
     FactoryGirl.setAdapter(new SequelizeAdapter());
   });
@@ -95,7 +100,7 @@ describe('Sequelize Integration', () => {
     await expect(sequelize.authenticate()).resolves.toBeUndefined();
   });
 
-  it('builds a User model with association', async () => {
+  it('builds a User model', async () => {
     // Arrange
     const defaultAttributesFactory = () => ({
       name: 'John',
@@ -138,5 +143,25 @@ describe('Sequelize Integration', () => {
     expect(address.get('state')).toBe('IL');
     expect(address.get('zip')).toBe('90210');
     expect(address.userId).toBe(1);
+  });
+
+  it('creates a User model', async () => {
+    // Arrange
+    const defaultAttributesFactory = () => ({
+      name: 'John',
+      email: 'some-email@mail.com',
+    });
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+    // Act
+    const user = await userFactory.create();
+
+    // Assert
+    expect(user.id).toEqual(expect.any(Number));
+    expect(user.get('name')).toEqual('John');
+    expect(user.get('email')).toEqual('some-email@mail.com');
+
+    const userInDatabase = await User.findByPk(user.get('id'));
+    expect(userInDatabase?.dataValues).toEqual(user.dataValues);
   });
 });

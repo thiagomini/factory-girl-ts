@@ -31,6 +31,15 @@ export class Factory<
     );
   }
 
+  async create(
+    override?: PartialDeep<Attributes>,
+    additionalParams?: Params,
+  ): Promise<ReturnType> {
+    const built = this.build(override, additionalParams);
+    const createdModel = await this.adapter.save(built);
+    return createdModel;
+  }
+
   build(
     override?: PartialDeep<Attributes>,
     additionalParams?: Params,

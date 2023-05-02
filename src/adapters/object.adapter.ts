@@ -3,6 +3,9 @@ import { InstanceOrInterface } from '@src/types/instance-or-interface.type';
 import { PartialDeep } from 'type-fest';
 
 export class ObjectAdapter<T> implements ModelAdapter<T, T> {
+  save(model: T): Promise<T> {
+    return Promise.resolve(model);
+  }
   build(
     _ModelClass: T,
     props: PartialDeep<InstanceOrInterface<T>, { recurseIntoArrays: true }>,
