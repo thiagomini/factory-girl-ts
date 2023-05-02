@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { SequelizeAdapter } from '@src/adapters/sequelize.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import {
@@ -9,6 +10,7 @@ import {
   NonAttribute,
   Sequelize,
 } from 'sequelize';
+
 const sequelize = new Sequelize(
   'postgres://postgres:pass123@localhost:5432/postgres',
   {
@@ -163,5 +165,35 @@ describe('Sequelize Integration', () => {
 
     const userInDatabase = await User.findByPk(user.get('id'));
     expect(userInDatabase?.dataValues).toEqual(user.dataValues);
+  });
+
+  it('creates many User models', async () => {
+    // Arrange
+    const defaultAttributesFactory = () => ({
+      name: faker.name.firstName(),
+      email: faker.internet.email(),
+    });
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+    // Act
+    const users = await userFactory.createMany(2, [
+      {
+        name: 'first',
+      },
+      {
+        name: 'second',
+      },
+    ]);
+
+    // Assert
+    expect(users[0].get('name')).toEqual('first');
+    expect(users[1].get('name')).toEqual('second');
+
+    const usersInDatabase = await User.findAll({
+      where: {
+        name: ['first', 'second'],
+      },
+    });
+    expect(usersInDatabase).toHaveLength(2);
   });
 });
