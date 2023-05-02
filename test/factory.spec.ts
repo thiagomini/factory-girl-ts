@@ -396,5 +396,41 @@ describe('Factory', () => {
       // Assert
       expect(users).toEqual([userAttributes, userAttributes]);
     });
+
+    it('creates many entities with given properties', async () => {
+      // Arrange
+      const userAttributes = buildUserAttributes();
+      const userFactory = FactoryGirl.define(
+        plainObject<User>(),
+        () => userAttributes,
+      );
+
+      // Act
+      const users = await userFactory.createMany(2, [
+        {
+          name: 'Jane Doe',
+        },
+        {
+          address: {
+            number: 456,
+          },
+        },
+      ]);
+
+      // Assert
+      expect(users).toEqual([
+        {
+          ...userAttributes,
+          name: 'Jane Doe',
+        },
+        {
+          ...userAttributes,
+          address: {
+            ...userAttributes.address,
+            number: 456,
+          },
+        },
+      ]);
+    });
   });
 });
