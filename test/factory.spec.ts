@@ -397,31 +397,43 @@ describe('Factory', () => {
       expect(users).toEqual([userAttributes, userAttributes]);
     });
 
-    it('creates many entities with given properties', async () => {
+    it('creates many entities custom and transient parameters', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
       const userFactory = FactoryGirl.define(
         plainObject<User>(),
-        () => userAttributes,
+        ({ transientParams }) => ({
+          ...userAttributes,
+          email: transientParams?.companyUser
+            ? 'user@company.com'
+            : userAttributes.email,
+        }),
       );
 
       // Act
-      const users = await userFactory.createMany(2, [
-        {
-          name: 'Jane Doe',
-        },
-        {
-          address: {
-            number: 456,
+      const users = await userFactory.createMany(
+        2,
+        [
+          {
+            name: 'Jane Doe',
           },
+          {
+            address: {
+              number: 456,
+            },
+          },
+        ],
+        {
+          companyUser: true,
         },
-      ]);
+      );
 
       // Assert
       expect(users).toEqual([
         {
           ...userAttributes,
           name: 'Jane Doe',
+          email: 'user@company.com',
         },
         {
           ...userAttributes,
@@ -429,6 +441,7 @@ describe('Factory', () => {
             ...userAttributes.address,
             number: 456,
           },
+          email: 'user@company.com',
         },
       ]);
     });
