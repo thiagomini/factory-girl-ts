@@ -344,7 +344,7 @@ describe('Factory', () => {
   });
 
   describe('create', () => {
-    it('should create an entity', async () => {
+    it('creates an entity', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
       const userFactory = FactoryGirl.define(
@@ -359,7 +359,7 @@ describe('Factory', () => {
       expect(user).toEqual(userAttributes);
     });
 
-    it('should create an entity with associations', async () => {
+    it('creates an entity with associations', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
       const userFactory = FactoryGirl.define(
@@ -378,6 +378,23 @@ describe('Factory', () => {
       // Assert
       expect(address).toMatchObject(addressAttributes);
       expect(address.userId).toBe(userAttributes.id);
+    });
+  });
+
+  describe('createMany', () => {
+    it('creates many entities', async () => {
+      // Arrange
+      const userAttributes = buildUserAttributes();
+      const userFactory = FactoryGirl.define(
+        plainObject<User>(),
+        () => userAttributes,
+      );
+
+      // Act
+      const users = await userFactory.createMany(2);
+
+      // Assert
+      expect(users).toEqual([userAttributes, userAttributes]);
     });
   });
 });

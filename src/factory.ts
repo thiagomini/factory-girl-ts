@@ -40,6 +40,17 @@ export class Factory<
     return createdModel;
   }
 
+  async createMany(
+    count: number,
+    partials?: PartialDeep<Attributes>[] | PartialDeep<Attributes>,
+    additionalParams?: Params,
+  ): Promise<ReturnType[]> {
+    const builtModels = this.buildMany(count, partials, additionalParams);
+    return await Promise.all(
+      builtModels.map((model) => this.adapter.save(model)),
+    );
+  }
+
   build(
     override?: PartialDeep<Attributes>,
     additionalParams?: Params,
