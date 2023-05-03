@@ -47,8 +47,10 @@
     "pg": "^8.10.0",
     "pg-hstore": "^2.3.4",
     "prettier": "^2.8.7",
+    "reflect-metadata": "^0.1.13",
     "sequelize": "^6.31.0",
     "type-fest": "^3.8.0",
+    "typeorm": "^0.3.15",
     "typescript": "^5.0.4",
     "vitest": "^0.30.1"
   }
