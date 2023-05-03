@@ -1,3 +1,4 @@
+import { FactoryGirl } from '@src/factory-girl';
 import { Column, DataSource, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -30,5 +31,23 @@ const dataSource = new DataSource({
 describe('Typeorm integration', () => {
   it('authenticates', async () => {
     await expect(dataSource.initialize()).resolves.toBeTruthy();
+  });
+
+  it('builds a User model', () => {
+    // Arrange
+    const defaultAttributesFactory = () => ({
+      id: 1,
+      name: 'John',
+      email: 'some-email@mail.com',
+    });
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+    // Act
+    const user = userFactory.build();
+
+    // Assert
+    expect(user.id).toBe(1);
+    expect(user.name).toBe('John');
+    expect(user.email).toBe('some-email@mail.com');
   });
 });
