@@ -5,5 +5,6 @@ export default mergeConfig(defaultConfig, {
   test: {
     include: ['**/*.(e2e|int)-spec.ts'],
     threads: false,
+    globalSetup: ['./test/global-setup.ts'],
   },
 });
