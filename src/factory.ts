@@ -23,8 +23,8 @@ export class Factory<
 
   associate<K extends keyof ReturnType>(
     key?: K | undefined,
-  ): Association<Attributes, Params, ReturnType> {
-    return new Association<Attributes, Params, ReturnType>(
+  ): Association<Model, Attributes, Params, ReturnType> {
+    return new Association<Model, Attributes, Params, ReturnType>(
       this,
       this.adapter,
       key,
@@ -35,7 +35,8 @@ export class Factory<
     override?: PartialDeep<Attributes>,
     additionalParams?: Params,
   ): Promise<ReturnType> {
-    const built = this.build(override, additionalParams);
+    const associations = await this.resolveAssociationsAsync(additionalParams);
+    const built = this.build(merge(override, associations), additionalParams);
     const createdModel = await this.adapter.save(built, this.model);
     return createdModel;
   }
@@ -94,6 +95,24 @@ export class Factory<
       const value = attributes[prop];
       if (isAssociation(value)) {
         defaultWithAssociations[prop] = value.build();
+      } else {
+        defaultWithAssociations[prop] = value;
+      }
+    }
+
+    return defaultWithAssociations as Attributes;
+  }
+
+  private async resolveAssociationsAsync(additionalParams?: Params) {
+    const attributes = this.defaultAttributesFactory({
+      transientParams: additionalParams,
+    });
+    const defaultWithAssociations: Dictionary = {};
+
+    for (const prop in attributes) {
+      const value = attributes[prop];
+      if (isAssociation(value)) {
+        defaultWithAssociations[prop] = await value.create();
       } else {
         defaultWithAssociations[prop] = value;
       }
