@@ -36,7 +36,7 @@ export class Factory<
     additionalParams?: Params,
   ): Promise<ReturnType> {
     const built = this.build(override, additionalParams);
-    const createdModel = await this.adapter.save(built);
+    const createdModel = await this.adapter.save(built, this.model);
     return createdModel;
   }
 
@@ -47,7 +47,7 @@ export class Factory<
   ): Promise<ReturnType[]> {
     const builtModels = this.buildMany(count, partials, additionalParams);
     return await Promise.all(
-      builtModels.map((model) => this.adapter.save(model)),
+      builtModels.map((model) => this.adapter.save(model, this.model)),
     );
   }
 

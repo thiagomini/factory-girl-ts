@@ -1,3 +1,4 @@
+import { TypeOrmRepositoryAdapter } from '@src/adapters/typeorm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import {
   Column,
@@ -62,12 +63,18 @@ const dataSource = new DataSource({
   password: 'pass123',
   database: 'postgres',
   synchronize: true,
-  entities: [User],
+  entities: [User, Address],
 });
 
 describe('Typeorm integration', () => {
-  it('authenticates', async () => {
-    await expect(dataSource.initialize()).resolves.toBeTruthy();
+  beforeAll(async () => {
+    await dataSource.initialize();
+    await dataSource.getRepository(Address).delete({});
+    await dataSource.getRepository(User).delete({});
+  });
+
+  beforeEach(() => {
+    FactoryGirl.setAdapter(new TypeOrmRepositoryAdapter(dataSource));
   });
 
   it('builds a User model', () => {
@@ -120,6 +127,34 @@ describe('Typeorm integration', () => {
         name: 'John',
         email: 'some-email@mail.com',
       },
+    });
+  });
+
+  it('creates a User model', async () => {
+    const defaultAttributesFactory = () => ({
+      name: 'John',
+      email: 'some-email@mail.com',
+    });
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+    // Act
+    const user = await userFactory.create();
+
+    // Assert
+    const userRepository = dataSource.getRepository(User);
+    const userInDatabase = await userRepository.findOneBy({
+      id: user.id,
+    });
+
+    expect(user).toEqual({
+      id: expect.any(Number),
+      name: 'John',
+      email: 'some-email@mail.com',
+    });
+    expect(userInDatabase).toEqual({
+      id: expect.any(Number),
+      name: 'John',
+      email: 'some-email@mail.com',
     });
   });
 });
