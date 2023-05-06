@@ -1,6 +1,6 @@
 import { ModelAdapter } from '@src/adapters/adapter.interface';
 import { InstanceOrInterface } from '@src/types/instance-or-interface.type';
-import { merge } from 'lodash';
+import { merge, times } from 'lodash';
 import type { PartialDeep } from 'type-fest';
 import { Association } from './association';
 import { DefaultAttributesFactory } from './interfaces';
@@ -35,8 +35,11 @@ export class Factory<
     override?: PartialDeep<Attributes>,
     additionalParams?: Params,
   ): Promise<ReturnType> {
-    const associations = await this.resolveAssociationsAsync(additionalParams);
-    const built = this.build(merge(override, associations), additionalParams);
+    const defaultAttributesWithAssociations =
+      await this.resolveAssociationsAsync(additionalParams);
+
+    const finalAttributes = merge(override, defaultAttributesWithAssociations);
+    const built = this.build(finalAttributes, additionalParams);
     const createdModel = await this.adapter.save(built, this.model);
     return createdModel;
   }
@@ -75,14 +78,12 @@ export class Factory<
     additionalParams?: Params,
   ): ReturnType[] {
     if (Array.isArray(partials)) {
-      return Array.from({ length: count }).map((_, index: number) =>
+      return times(count).map((_partial, index: number) =>
         this.build(partials?.[index], additionalParams),
       );
     }
 
-    return Array.from({ length: count }).map(() =>
-      this.build(partials, additionalParams),
-    );
+    return times(count).map(() => this.build(partials, additionalParams));
   }
 
   private resolveAssociations(additionalParams?: Params): Attributes {
