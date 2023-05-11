@@ -67,3 +67,32 @@ export class UserActiveRecord extends BaseEntity {
   })
   email!: string;
 }
+
+export class AddressActiveRecord extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column({
+    type: 'varchar',
+  })
+  street!: string;
+
+  @Column({
+    type: 'varchar',
+  })
+  city!: string;
+
+  @Column({
+    type: 'varchar',
+  })
+  state!: string;
+
+  @Column({
+    type: 'varchar',
+  })
+  zip!: string;
+
+  @ManyToOne(() => User, (user) => user.id)
+  @JoinColumn()
+  user!: User;
+}

@@ -2,6 +2,7 @@ import { TypeOrmRepositoryAdapter } from '@src/adapters/typeorm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import {
   Address,
+  AddressActiveRecord,
   User,
   UserActiveRecord,
 } from '@test/integration/typeorm.models';
@@ -175,7 +176,38 @@ describe('Typeorm integration', () => {
       expect(user.email).toBe('some-email@mail.com');
     });
 
-    it.todo('builds a model with association');
+    it('builds a model with association', () => {
+      // Arrange
+      const userFactory = FactoryGirl.define(
+        UserActiveRecord,
+        generateUserDefaultAttributes,
+      );
+      const addressFactory = FactoryGirl.define(AddressActiveRecord, () => ({
+        id: 1,
+        street: '123 Fake St.',
+        city: 'Springfield',
+        state: 'IL',
+        zip: '90210',
+        user: userFactory.associate(),
+      }));
+
+      // Act
+      const address = addressFactory.build();
+
+      // Assert
+      expect(address).toEqual<Address>({
+        city: 'Springfield',
+        id: 1,
+        state: 'IL',
+        street: '123 Fake St.',
+        zip: '90210',
+        user: {
+          id: 1,
+          name: 'John',
+          email: 'some-email@mail.com',
+        },
+      });
+    });
 
     it.todo('creates a User model');
 
