@@ -239,6 +239,47 @@ describe('Typeorm integration', () => {
       });
     });
 
-    it.todo('creates an Address model with association');
+    it('creates an Address model with association', async () => {
+      const userFactory = FactoryGirl.define(
+        UserActiveRecord,
+        generateUserDefaultAttributes,
+      );
+      const addressFactory = FactoryGirl.define(AddressActiveRecord, () => ({
+        id: 1,
+        street: '123 Fake St.',
+        city: 'Springfield',
+        state: 'IL',
+        zip: '90210',
+        user: userFactory.associate(),
+      }));
+
+      // Act
+      const address = await addressFactory.create();
+
+      // Assert
+      const addressInDatabase = await AddressActiveRecord.findOne({
+        where: {
+          id: address.id,
+        },
+        relations: {
+          user: true,
+        },
+      });
+
+      expect(address).toEqual({
+        id: expect.any(Number),
+        street: '123 Fake St.',
+        city: 'Springfield',
+        state: 'IL',
+        zip: '90210',
+        user: {
+          id: expect.any(Number),
+          name: 'John',
+          email: 'some-email@mail.com',
+        },
+      });
+      expect(addressInDatabase).toBeTruthy();
+      expect(addressInDatabase?.user).toBeTruthy();
+    });
   });
 });

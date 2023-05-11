@@ -94,7 +94,7 @@ export class AddressActiveRecord extends BaseEntity {
   })
   zip!: string;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => UserActiveRecord, (user) => user.id)
   @JoinColumn()
-  user!: User;
+  user!: UserActiveRecord;
 }
