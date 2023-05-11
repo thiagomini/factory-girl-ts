@@ -53,6 +53,7 @@ export class Address {
   user!: User;
 }
 
+@Entity()
 export class UserActiveRecord extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -68,6 +69,7 @@ export class UserActiveRecord extends BaseEntity {
   email!: string;
 }
 
+@Entity()
 export class AddressActiveRecord extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;

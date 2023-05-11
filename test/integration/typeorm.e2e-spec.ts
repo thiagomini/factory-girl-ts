@@ -16,7 +16,7 @@ const dataSource = new DataSource({
   password: 'pass123',
   database: 'postgres',
   synchronize: true,
-  entities: [User, Address],
+  entities: [User, Address, UserActiveRecord, AddressActiveRecord],
 });
 
 describe('Typeorm integration', () => {
@@ -209,7 +209,35 @@ describe('Typeorm integration', () => {
       });
     });
 
-    it.todo('creates a User model');
+    it('creates a User model', async () => {
+      const defaultAttributesFactory = () => ({
+        name: 'John',
+        email: 'some-email@mail.com',
+      });
+      const userFactory = FactoryGirl.define(
+        UserActiveRecord,
+        defaultAttributesFactory,
+      );
+
+      // Act
+      const user = await userFactory.create();
+
+      // Assert
+      const userInDatabase = await UserActiveRecord.findOneBy({
+        id: user.id,
+      });
+
+      expect(user).toEqual({
+        id: expect.any(Number),
+        name: 'John',
+        email: 'some-email@mail.com',
+      });
+      expect(userInDatabase).toEqual({
+        id: expect.any(Number),
+        name: 'John',
+        email: 'some-email@mail.com',
+      });
+    });
 
     it.todo('creates an Address model with association');
   });
