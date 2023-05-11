@@ -1,59 +1,11 @@
 import { TypeOrmRepositoryAdapter } from '@src/adapters/typeorm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import {
-  Column,
-  DataSource,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-
-@Entity()
-class User {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column({
-    type: 'varchar',
-  })
-  name!: string;
-
-  @Column({
-    type: 'varchar',
-  })
-  email!: string;
-}
-
-@Entity()
-class Address {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column({
-    type: 'varchar',
-  })
-  street!: string;
-
-  @Column({
-    type: 'varchar',
-  })
-  city!: string;
-
-  @Column({
-    type: 'varchar',
-  })
-  state!: string;
-
-  @Column({
-    type: 'varchar',
-  })
-  zip!: string;
-
-  @ManyToOne(() => User, (user) => user.id)
-  @JoinColumn()
-  user!: User;
-}
+  Address,
+  User,
+  UserActiveRecord,
+} from '@test/integration/typeorm.models';
+import { DataSource } from 'typeorm';
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -73,15 +25,15 @@ describe('Typeorm integration', () => {
     await dataSource.getRepository(User).delete({});
   });
 
-  beforeEach(() => {
-    FactoryGirl.setAdapter(new TypeOrmRepositoryAdapter(dataSource));
+  const generateUserDefaultAttributes = () => ({
+    id: 1,
+    name: 'John',
+    email: 'some-email@mail.com',
   });
 
   describe('Repository pattern', () => {
-    const generateUserDefaultAttributes = () => ({
-      id: 1,
-      name: 'John',
-      email: 'some-email@mail.com',
+    beforeEach(() => {
+      FactoryGirl.setAdapter(new TypeOrmRepositoryAdapter(dataSource));
     });
 
     it('builds a User model', () => {
@@ -204,5 +156,29 @@ describe('Typeorm integration', () => {
       expect(addressInDatabase).toBeTruthy();
       expect(addressInDatabase.user).toBeTruthy();
     });
+  });
+
+  describe('Active Record pattern', () => {
+    it('builds a User model', () => {
+      // Arrange
+      const userFactory = FactoryGirl.define(
+        UserActiveRecord,
+        generateUserDefaultAttributes,
+      );
+
+      // Act
+      const user = userFactory.build();
+
+      // Assert
+      expect(user.id).toBe(1);
+      expect(user.name).toBe('John');
+      expect(user.email).toBe('some-email@mail.com');
+    });
+
+    it.todo('builds a model with association');
+
+    it.todo('creates a User model');
+
+    it.todo('creates an Address model with association');
   });
 });
