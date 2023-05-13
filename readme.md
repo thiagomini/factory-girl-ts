@@ -1,30 +1,29 @@
-# Philosophy
+# Factory Girl TypeScript (factory-girl-ts)
 
-factory-girl-ts is a library based on the Node.js version of factory_bot: [factory-girl](https://www.npmjs.com/package/factory-girl), which has no updates since 2018. The main goal of `factory-girl-ts` is to provide an easy API to create test data, especially with associations, and native support for Typescript. It was also inspired by [fishery](https://github.com/thoughtbot/fishery), which is a modern alternative of the old `factory-girl`.
+`factory-girl-ts` is a modern, easy-to-use library for creating test data in Typescript projects. Drawing inspiration from the [factory_bot](https://github.com/thoughtbot/factory_bot) Ruby gem and the [fishery](https://github.com/thoughtbot/fishery) library, `factory-girl-ts` is designed for seamless integration with popular ORMs like [Sequelize](https://sequelize.org/) and [Typeorm](https://typeorm.io/).
 
-Currently, this library supports the following ORMs:
+## Why `factory-girl-ts`?
 
-- [Sequelize](https://sequelize.org/)
-- [Typeorm](https://typeorm.io/)
+While `factory-girl` is a renowned library for creating test data in Node.js, it hasn't been updated since 2018. `factory-girl-ts` was born to fulfill the need for an updated, TypeScript-compatible library focusing on ease of use, especially when it comes to creating associations and asynchronous operations.
 
 ## Features
 
-- Simple and intuitive API for defining and creating test data
-- Integration with Sequelize and TypeORM for seamless usage with these ORMs
-- Supports building and creating models with associations
-- Works with both Repository and Active Record patterns
+- **Simple, intuitive API:** Define and create test data in a breeze.
+- **Seamless ORM integration:** Works like a charm with Sequelize and TypeORM.
+- **Support for associations:** Effortlessly build and create models with associations.
+- **Compatible with Repository and Active Record patterns:** Choose the pattern that suits your project best.
 
-## Installation
+## Getting Started
 
-You can install Factory Girl TypeScript using npm:
+Install `factory-girl-ts` using npm:
 
 ```bash
 npm install factory-girl-ts
 ```
 
-## Usage
+## How to Use factory-girl-ts
 
-Factories are instances of the [Factory](./src/factory.ts) class, which provides the following methods:
+Factories in factory-girl-ts are instances of the Factory class, offering several methods for building and creating instances of your models.
 
 - `build(override?)`: builds the target object, with an optional `override` parameter
 - `buildMany(override?)`: builds an array of the target object
@@ -33,16 +32,16 @@ Factories are instances of the [Factory](./src/factory.ts) class, which provides
 
 Let's see how to define a factory and use each of the methods above
 
-### Defining and using a basic factory (Sequelize)
+### Defining a Factory (Sequelize Example)
 
 ```ts
 import { User } from './models/user';
 import { FactoryGirl, SequelizeAdapter } from 'factory-girl-ts';
 
-// First, we have to specify which adapter we want to use. Each ORM has its own adapter.
+// Step 1: Specify the adapter for your ORM.
 FactoryGirl.setAdapter(new SequelizeAdapter());
 
-// Then, we define our factory
+// Step 2: Define your factory with default attributes for the model.
 const defaultAttributesFactory = () => ({
   name: 'John',
   email: 'some-email@mail.com',
@@ -53,49 +52,77 @@ const defaultAttributesFactory = () => ({
 });
 const userFactory = new FactoryGirl(User, defaultAttributesFactory);
 
-// Now, we can use it to build or create instances of the target object
+// Step 3: Use the factory to create instances of the model.
 const defaultUser = userFactory.build();
 console.log(defaultUser);
-// { name: 'John', email: 'some-email@mail.com', state: 'Some state', country: 'Some country' }
+// Output: { name: 'John', email: 'some-email@mail.com', state: 'Some state', country: 'Some country' }
+```
 
-// We can also override default properties
+### Overriding Default Properties
+
+You can override default properties when creating a model instance:
+
+```ts
 const userWithCustomName = userFactory.build({ name: 'Jane' });
 console.log(userWithCustomName);
-// { name: 'Jane', email: 'some-email@mail.com', 'Some state', country: 'Some country' }
+// Output: { name: 'Jane', email: 'some-email@mail.com', 'Some state', country: 'Some country' }
 
-// Overriding nested properties is also possible
+// Overriding nested properties:
 const userWithCustomAddress = userFactory.build({
   address: { state: 'Another state' },
 });
 console.log(userWithCustomAddress);
-// { name: 'John', email: 'some-email@mail', state: 'Another state', country: 'Some country' }
+// Output: { name: 'John', email: 'some-email@mail', state: 'Another state', country: 'Some country' }
 ```
 
-### Building many instances
+### Building Multiple Instances with `buildMany()`
 
-We can also build many instances of the target object at once:
+The `buildMany()` function enables you to create multiple instances of a model at once. Let's walk through an example of how to use it.
 
 ```ts
+import { User } from './models/user';
+import { FactoryGirl, SequelizeAdapter } from 'factory-girl-ts';
+
+// 1. Set the adapter for your ORM.
+FactoryGirl.setAdapter(new SequelizeAdapter());
+
+// 2. Define your factory with default attributes for the model.
 const defaultAttributesFactory = () => ({
   name: 'John',
   email: 'some-email@mail.com',
 });
 const userFactory = new FactoryGirl(User, defaultAttributesFactory);
 
+// 3. Create multiple instances of the model.
 const users = userFactory.buildMany(2);
-// [ { name: 'John', email: 'some-email@mail.com' }, { name: 'John', email: 'some-email@mail.com' } ]
+console.log(users);
+// Output: [ { name: 'John', email: 'some-email@mail.com' }, { name: 'John', email: 'some-email@mail.com' } ]
+```
 
-// We can also override default properties for each instance
+#### Overriding Default Attributes for Multiple Instances
+
+buildMany() also allows you to override default attributes for each created instance:
+
+```ts
+// Create multiple instances with custom attributes.
 const [jane, mary] = userFactory.buildMany(
   2,
   { name: 'Jane' },
   { name: 'Mary' },
 );
-jane.name; // 'Jane'
-mary.name; // 'Mary'
-
-// Finally, it's possible to apply the override for all the created objects:
-const [user1, user2] = userFactory.buildMany(2, { name: 'Foo' });
-user1.name; // 'Foo'
-user2.name; // 'Foo'
+console.log(jane.name); // Output: 'Jane'
+console.log(mary.name); // Output: 'Mary'
 ```
+
+#### Applying the Same Override to All Instances
+
+If you want to apply the same override to all instances, you can do that too:
+
+```ts
+// Create multiple instances with the same custom attribute.
+const [user1, user2] = userFactory.buildMany(2, { name: 'Foo' });
+console.log(user1.name); // Output: 'Foo'
+console.log(user2.name); // Output: 'Foo'
+```
+
+By using buildMany(), you can efficiently create multiple model instances for your tests, with the flexibility to customize their attributes as needed.
