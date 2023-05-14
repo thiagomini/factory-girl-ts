@@ -126,3 +126,54 @@ console.log(user2.name); // Output: 'Foo'
 ```
 
 By using buildMany(), you can efficiently create multiple model instances for your tests, with the flexibility to customize their attributes as needed.
+
+### Creating Instances with `create()`
+
+The `create()` function allows you to create an instance of a model and save it to the database. Let's walk through an example of how to use it.
+
+```ts
+import { User } from './models/user';
+import { FactoryGirl, SequelizeAdapter } from 'factory-girl-ts';
+
+// Step 1: Specify the adapter for your ORM.
+FactoryGirl.setAdapter(new SequelizeAdapter());
+
+// Step 2: Define your factory with default attributes for the model.
+const defaultAttributesFactory = () => ({
+  name: 'John',
+  email: 'some-email@mail.com',
+  address: {
+    state: 'Some state',
+    country: 'Some country',
+  },
+});
+const userFactory = new FactoryGirl(User, defaultAttributesFactory);
+
+// Step 3: Use the factory to create instances of the model.
+const defaultUser = await userFactory.create();
+
+// The factory returns a sequelize instance of the given model. Therefore, we can use sequelize's methods:
+console.log(defaultUser.get('name')); // Output: 'John'
+```
+
+You can also override default properties and create many instances of the model at once, just like with `build()` and `buildMany()`:
+
+```ts
+// Create an instance with custom attributes.
+const userWithCustomName = await userFactory.create({ name: 'Jane' });
+console.log(userWithCustomName.get('name')); // Output: 'Jane'
+
+// Create multiple instances with custom attributes.
+const [jane, mary] = await userFactory.createMany(
+  2,
+  { name: 'Jane' },
+  { name: 'Mary' },
+);
+console.log(jane.get('name')); // Output: 'Jane'
+console.log(mary.get('name')); // Output: 'Mary'
+
+// Create multiple instances with the same custom attribute.
+const [user1, user2] = await userFactory.createMany(2, { name: 'Foo' });
+console.log(user1.get('name')); // Output: 'Foo'
+console.log(user2.get('name')); // Output: 'Foo'
+```
