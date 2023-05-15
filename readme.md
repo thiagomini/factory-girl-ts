@@ -177,3 +177,65 @@ const [user1, user2] = await userFactory.createMany(2, { name: 'Foo' });
 console.log(user1.get('name')); // Output: 'Foo'
 console.log(user2.get('name')); // Output: 'Foo'
 ```
+
+### Working with Associations
+
+`factory-girl-ts` provides an easy way to create associations between models using the `associate()` method. This method links a model to another by using an attribute from the associated model.
+
+Let's walk through an example to demonstrate how this works. We'll be using a `User` model and an `Address` model, where each user has one address.
+
+```ts
+// Define the User factory.
+const defaultAttributesFactory = () => ({
+  id: 1,
+  name: 'John',
+  email: 'some-email@mail.com',
+});
+
+const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+// Define the Address factory, associating it with the User factory.
+const addressFactory = FactoryGirl.define(Address, () => ({
+  id: 1,
+  street: '123 Fake St.',
+  city: 'Springfield',
+  state: 'IL',
+  zip: '90210',
+  userId: userFactory.associate('id'), // Associates the 'id' from the User model.
+}));
+
+const address = addressFactory.build();
+const addressInDatabase = await addressFactory.create();
+
+address.get('userId'); // Output: 1
+addressInDatabase.get('userId'); // Output: 1
+```
+
+The `associate()` function coordinates with the method called in the parent factory. If you call `build()` on the parent factory, `associate()` will trigger the associated factory's `build()` method. Conversely, if you call `create()`, it will invoke the `create()` method in the associated factory.
+
+Additionally, `associate()` allows you to specify a custom attribute (or 'key') for associating the models.
+
+```ts
+// Define the Address factory using a custom 'key' to associate with the User factory.
+const addressFactory = FactoryGirl.define(Address, () => ({
+  id: 1,
+  street: '123 Fake St.',
+  city: 'Springfield',
+  state: 'IL',
+  zip: '90210',
+  userId: userFactory.associate('uuid'), // Uses the 'uuid' attribute from the User model for association.
+}));
+```
+
+Lastly, the `associate()` method only comes into play if no value is provided for the given association. This prevents unnecessary creation of entities and can be particularly useful when you want to control the associated value.
+
+```ts
+// Create an Address instance with a specified 'userId'. This will bypass the 'associate()' method in the User factory.
+const addressFromFirstUser = await addressFactory.create({
+  userId: 1,
+});
+```
+
+In summary, `factory-girl-ts` allows you to handle model associations seamlessly. The `associate()` method is a powerful tool that helps you link models together using their attributes, making it easier than ever to create complex data structures for your tests.
+
+Stay tuned for more features and improvements. We are continuously working to make `factory-girl-ts` the most intuitive and efficient tool for generating test data in TypeScript!
