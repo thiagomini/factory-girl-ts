@@ -31,6 +31,8 @@ classDiagram
     ModelAdapter <|.. ObjectAdapter
     FactoryGirl o-- ModelAdapter : uses
     Factory o-- Factory : associate
+    Factory --|> Entity : creates
+
 ```
 
 ## Getting Started
