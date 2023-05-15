@@ -6,12 +6,32 @@
 
 While `factory-girl` is a renowned library for creating test data in Node.js, it hasn't been updated since 2018. `factory-girl-ts` was born to fulfill the need for an updated, TypeScript-compatible library focusing on ease of use, especially when it comes to creating associations and asynchronous operations.
 
-## Features
+## TL;DR
 
-- **Simple, intuitive API:** Define and create test data in a breeze.
-- **Seamless ORM integration:** Works like a charm with Sequelize and TypeORM.
-- **Support for associations:** Effortlessly build and create models with associations.
-- **Compatible with Repository and Active Record patterns:** Choose the pattern that suits your project best.
+`factory-girl-ts` is a TypeScript-compatible library created for crafting test data. It is designed to fit smoothly with ORMs such as [Sequelize](https://sequelize.org/) and [TypeORM](https://typeorm.io/).
+
+Key features of `factory-girl-ts` include:
+
+- **A Simple and Intuitive API**: This library makes the defining and creating of test data simple and quick.
+- **Seamless ORM Integration**: It has been designed to integrate effortlessly with Sequelize and TypeORM.
+- **Built-in Support for Associations**: It allows for simple creation of models with associations, making it perfect for complex data structures.
+- **Repository and Active Record Pattern Compatibility**: Depending on your project's requirements, you can choose the most suitable pattern.
+
+`factory-girl-ts` uses an instance of the Factory class to define factories. The Factory class offers several methods for building and creating instances of your models. You can create single or multiple instances, with or without custom attributes, and the library also supports creating instances with associations.
+
+It also allows you to specify an adapter for your ORM, and currently supports three adapters: `TypeOrmRepositoryAdapter`, `SequelizeAdapter`, and `ObjectAdapter`.
+
+Here's a simple class diagram showing how the main pieces of the library fit together:
+
+```mermaid
+classDiagram
+    FactoryGirl --|> Factory : creates
+    ModelAdapter <|.. TypeOrmRepositoryAdapter
+    ModelAdapter <|.. SequelizeAdapter
+    ModelAdapter <|.. ObjectAdapter
+    FactoryGirl o-- ModelAdapter : uses
+    Factory o-- Factory : associate
+```
 
 ## Getting Started
 
