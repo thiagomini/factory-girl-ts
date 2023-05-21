@@ -20,7 +20,7 @@ export class SequelizeAdapter<
     return ModelClass.build(props);
   }
 
-  async save(model: Model): Promise<Model> {
-    return await model.save();
+  async save(model: Model, ModelClass: T): Promise<Model> {
+    return await ModelClass.create(model.toJSON());
   }
 }
