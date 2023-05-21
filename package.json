@@ -1,6 +1,6 @@
 {
   "name": "factory-girl-ts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A factory library to help creating test data",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -26,8 +26,7 @@
     "preversion": "dc up -d && npm run test:e2e",
     "version": "npm run prettier && git add -A src",
     "postversion": "git push && git push --tags",
-    "prepare": "husky install",
-    "postprepare": "npm run build",
+    "prepare": "husky install && npm run build",
     "typecheck": "tsc --noEmit -p tsconfig.build.json"
   },
   "repository": {
