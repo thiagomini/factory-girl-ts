@@ -1,14 +1,18 @@
 {
   "name": "factory-girl-ts",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A factory library to help creating test data",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "directories": {
     "test": "test"
   },
   "engines": {
     "node": ">= 18.16.0"
   },
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
     "test": "vitest run --config ./vitest.config.ts",
     "test:watch": "vitest --config ./vitest.config.ts",
@@ -17,15 +21,24 @@
     "prebuild": "rimraf dist",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "prettier": "prettier --write .",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "dc up -d && npm run test:e2e",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags",
     "prepare": "husky install",
+    "postprepare": "npm run build",
     "typecheck": "tsc --noEmit -p tsconfig.build.json"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thiagomini/factory-girl-ts.git"
   },
-  "keywords": [],
+  "keywords": [
+    "test",
+    "factory"
+  ],
   "author": "Thiago Ribeiro Valentim Martins",
   "license": "ISC",
   "bugs": {
