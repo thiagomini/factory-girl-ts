@@ -1,4 +1,5 @@
 [![Tests](https://github.com/thiagomini/factory-girl-ts/actions/workflows/node.js.yml/badge.svg)](https://github.com/thiagomini/factory-girl-ts/actions/workflows/node.js.yml)
+
 # Factory Girl TypeScript (factory-girl-ts)
 
 `factory-girl-ts` is a modern, easy-to-use library for creating test data in Typescript projects. Drawing inspiration from the [factory_bot](https://github.com/thoughtbot/factory_bot) Ruby gem and the [fishery](https://github.com/thoughtbot/fishery) library, `factory-girl-ts` is designed for seamless integration with popular ORMs like [Sequelize](https://sequelize.org/) and [Typeorm](https://typeorm.io/).
