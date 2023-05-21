@@ -18,7 +18,7 @@
     "test:watch": "vitest --config ./vitest.config.ts",
     "test:e2e": "vitest run --config ./vitest.e2e.config.ts",
     "test:e2e:watch": "vitest --config ./vitest.e2e.config.ts",
-    "prebuild": "rimraf dist",
+    "prebuild": "rimraf lib",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
