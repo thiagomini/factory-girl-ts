@@ -167,6 +167,27 @@ describe('Sequelize Integration', () => {
     expect(userInDatabase?.dataValues).toEqual(user.dataValues);
   });
 
+  it('creates a User model with overrided attributes', async () => {
+    // Arrange
+    const defaultAttributesFactory = () => ({
+      name: 'John',
+      email: faker.internet.email(),
+    });
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+    // Act
+    const user = await userFactory.create({
+      name: 'JohnModified',
+    });
+
+    // Assert
+    expect(user.id).toEqual(expect.any(Number));
+    expect(user.get('name')).toEqual('JohnModified');
+
+    const userInDatabase = await User.findByPk(user.get('id'));
+    expect(userInDatabase?.dataValues).toEqual(user.dataValues);
+  });
+
   it('creates many User models', async () => {
     // Arrange
     const defaultAttributesFactory = () => ({

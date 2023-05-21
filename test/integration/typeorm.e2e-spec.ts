@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { TypeOrmRepositoryAdapter } from '@src/adapters/typeorm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import {
@@ -236,6 +237,38 @@ describe('Typeorm integration', () => {
         id: expect.any(Number),
         name: 'John',
         email: 'some-email@mail.com',
+      });
+    });
+
+    it('creates a User model with overrided attributes', async () => {
+      const defaultAttributesFactory = () => ({
+        name: 'John',
+        email: faker.internet.email(),
+      });
+      const userFactory = FactoryGirl.define(
+        UserActiveRecord,
+        defaultAttributesFactory,
+      );
+
+      // Act
+      const user = await userFactory.create({
+        name: 'JohnModified',
+      });
+
+      // Assert
+      const userInDatabase = await UserActiveRecord.findOneBy({
+        id: user.id,
+      });
+
+      expect(user).toEqual({
+        id: expect.any(Number),
+        name: 'JohnModified',
+        email: expect.any(String),
+      });
+      expect(userInDatabase).toEqual({
+        id: expect.any(Number),
+        name: 'JohnModified',
+        email: user.email,
       });
     });
 

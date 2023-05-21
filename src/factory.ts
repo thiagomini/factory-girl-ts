@@ -38,7 +38,7 @@ export class Factory<
     const defaultAttributesWithAssociations =
       await this.resolveAssociationsAsync(additionalParams);
 
-    const finalAttributes = merge(override, defaultAttributesWithAssociations);
+    const finalAttributes = merge(defaultAttributesWithAssociations, override);
     const built = this.build(finalAttributes, additionalParams);
     const createdModel = await this.adapter.save(built, this.model);
     return createdModel;
