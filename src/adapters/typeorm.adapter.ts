@@ -1,8 +1,8 @@
-import { ModelAdapter } from '@src/adapters/adapter.interface';
-import { InstanceOrInterface } from '@src/types/instance-or-interface.type';
 import { plainToInstance } from 'class-transformer';
 import { Class, PartialDeep } from 'type-fest';
 import { DataSource, ObjectLiteral } from 'typeorm';
+import { InstanceOrInterface } from '../types/instance-or-interface.type';
+import { ModelAdapter } from './adapter.interface';
 
 export class TypeOrmRepositoryAdapter<
   TClass extends Class<ReturnType>,

@@ -1,4 +1,4 @@
-import { Dictionary } from '@src/types';
+import { Dictionary } from './types';
 
 export function plainObject<T extends Dictionary>(): T {
   return {} as T;

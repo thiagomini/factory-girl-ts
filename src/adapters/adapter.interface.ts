@@ -1,5 +1,5 @@
-import { InstanceOrInterface } from '@src/types/instance-or-interface.type';
 import { PartialDeep } from 'type-fest';
+import { InstanceOrInterface } from '../types/instance-or-interface.type';
 
 export interface ModelAdapter<ModelClass, ReturnType> {
   build(

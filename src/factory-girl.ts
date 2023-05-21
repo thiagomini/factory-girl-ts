@@ -1,9 +1,9 @@
-import { ModelAdapter } from '@src/adapters/adapter.interface';
-import { ObjectAdapter } from '@src/adapters/object.adapter';
-import { Dictionary } from '@src/types';
-import { InstanceOrInterface } from '@src/types/instance-or-interface.type';
+import { ModelAdapter } from './adapters/adapter.interface';
+import { ObjectAdapter } from './adapters/object.adapter';
 import { Factory } from './factory';
 import { DefaultAttributesFactory } from './interfaces';
+import { Dictionary } from './types';
+import { InstanceOrInterface } from './types/instance-or-interface.type';
 
 export class FactoryGirl {
   static adapter: ModelAdapter<unknown, unknown> = new ObjectAdapter();

@@ -1,6 +1,6 @@
-import { ModelAdapter } from '@src/adapters/adapter.interface';
 import { Model, ModelStatic } from 'sequelize';
 import { Class, PartialDeep } from 'type-fest';
+import { ModelAdapter } from '../adapters/adapter.interface';
 
 export class SequelizeAdapter<
   TEntity extends Model,

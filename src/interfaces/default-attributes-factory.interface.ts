@@ -1,4 +1,4 @@
-import { Association } from '@src/association';
+import { Association } from '../association';
 
 export type AdditionalParams<Transient> = {
   transientParams?: Transient;

@@ -1,10 +1,10 @@
-import { ModelAdapter } from '@src/adapters/adapter.interface';
-import { InstanceOrInterface } from '@src/types/instance-or-interface.type';
 import { merge, times } from 'lodash';
 import type { PartialDeep } from 'type-fest';
+import { ModelAdapter } from './adapters/adapter.interface';
 import { Association } from './association';
 import { DefaultAttributesFactory } from './interfaces';
 import { Dictionary } from './types';
+import { InstanceOrInterface } from './types/instance-or-interface.type';
 
 export class Factory<
   Model,

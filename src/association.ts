@@ -1,7 +1,7 @@
-import { ModelAdapter } from '@src/adapters/adapter.interface';
-import { Dictionary } from '@src/types';
 import { ValueOf } from 'type-fest';
+import { ModelAdapter } from './adapters';
 import { Factory } from './factory';
+import { Dictionary } from './types';
 export class Association<
   Model,
   Attributes extends Dictionary = Dictionary,

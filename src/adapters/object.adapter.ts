@@ -1,6 +1,6 @@
-import { ModelAdapter } from '@src/adapters/adapter.interface';
-import { InstanceOrInterface } from '@src/types/instance-or-interface.type';
 import { PartialDeep } from 'type-fest';
+import { InstanceOrInterface } from '../types/instance-or-interface.type';
+import { ModelAdapter } from './adapter.interface';
 
 export class ObjectAdapter<T> implements ModelAdapter<T, T> {
   save(model: T): Promise<T> {
