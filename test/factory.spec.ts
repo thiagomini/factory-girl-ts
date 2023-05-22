@@ -486,5 +486,37 @@ describe('Factory', () => {
         email: 'user@company.com',
       });
     });
+
+    it('extends the factory with transient attributes', () => {
+      // Arrange
+      type UserTransientParams = {
+        email?: string;
+      };
+
+      const userFactory = FactoryGirl.define<User, UserTransientParams>(
+        plainObject<User>(),
+        buildUserAttributes,
+      );
+
+      // Act
+      const companyEmailUserFactory = userFactory.extend(
+        ({ transientParams }) => ({
+          email: transientParams?.email ?? '',
+        }),
+      );
+
+      // Assert
+      expect(
+        companyEmailUserFactory.build(
+          {},
+          {
+            email: 'transient@mail.com',
+          },
+        ),
+      ).toEqual({
+        ...buildUserAttributes(),
+        email: 'transient@mail.com',
+      });
+    });
   });
 });

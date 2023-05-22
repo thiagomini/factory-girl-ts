@@ -86,11 +86,14 @@ export class Factory<
     return times(count).map(() => this.build(partials, additionalParams));
   }
 
-  extend(
-    newDefaultAttributesFactory: DefaultAttributesFactory<Attributes, Params>,
-  ): Factory<Model, Attributes, Params, ReturnType> {
+  extend<ExtendedParams extends Params = Params>(
+    newDefaultAttributesFactory: DefaultAttributesFactory<
+      Attributes,
+      ExtendedParams
+    >,
+  ): Factory<Model, Attributes, ExtendedParams, ReturnType> {
     const decoratedDefaultAttributesFactory = (
-      additionalParams: AdditionalParams<Params>,
+      additionalParams: AdditionalParams<ExtendedParams>,
     ) => {
       const defaultAttributes = this.defaultAttributesFactory(additionalParams);
       return merge(
