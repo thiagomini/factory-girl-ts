@@ -188,6 +188,28 @@ describe('Sequelize Integration', () => {
     expect(userInDatabase?.dataValues).toEqual(user.dataValues);
   });
 
+  it('creates a User model with extended factory', async () => {
+    // Arrange
+    const defaultAttributesFactory = () => ({
+      name: 'John',
+      email: faker.internet.email(),
+    });
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+    const extendedUserFactory = userFactory.extend(() => ({
+      name: 'JohnExtended',
+    }));
+
+    // Act
+    const user = await extendedUserFactory.create();
+
+    // Assert
+    expect(user.id).toEqual(expect.any(Number));
+    expect(user.get('name')).toEqual('JohnExtended');
+
+    const userInDatabase = await User.findByPk(user.get('id'));
+    expect(userInDatabase?.dataValues).toEqual(user.dataValues);
+  });
+
   it('creates many User models', async () => {
     // Arrange
     const defaultAttributesFactory = () => ({

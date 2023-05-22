@@ -272,6 +272,39 @@ describe('Typeorm integration', () => {
       });
     });
 
+    it('creates a User model with extended factory', async () => {
+      const defaultAttributesFactory = () => ({
+        name: 'John',
+        email: 'some-email@mail.com',
+      });
+      const userFactory = FactoryGirl.define(
+        UserActiveRecord,
+        defaultAttributesFactory,
+      );
+      const extendedUserFactory = userFactory.extend(() => ({
+        name: 'JohnExtended',
+      }));
+
+      // Act
+      const user = await extendedUserFactory.create();
+
+      // Assert
+      const userInDatabase = await UserActiveRecord.findOneBy({
+        id: user.id,
+      });
+
+      expect(user).toEqual({
+        id: expect.any(Number),
+        name: 'JohnExtended',
+        email: 'some-email@mail.com',
+      });
+      expect(userInDatabase).toEqual({
+        id: expect.any(Number),
+        name: 'JohnExtended',
+        email: 'some-email@mail.com',
+      });
+    });
+
     it('creates an Address model with association', async () => {
       const userFactory = FactoryGirl.define(
         UserActiveRecord,
