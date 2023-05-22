@@ -466,4 +466,25 @@ describe('Factory', () => {
       ]);
     });
   });
+
+  describe('extend', () => {
+    it('extends the factory with new attributes', () => {
+      // Arrange
+      const userFactory = FactoryGirl.define(
+        plainObject<User>(),
+        buildUserAttributes,
+      );
+
+      // Act
+      const companyEmailUserFactory = userFactory.extend(() => ({
+        email: 'user@company.com',
+      }));
+
+      // Assert
+      expect(companyEmailUserFactory.build()).toEqual({
+        ...buildUserAttributes(),
+        email: 'user@company.com',
+      });
+    });
+  });
 });

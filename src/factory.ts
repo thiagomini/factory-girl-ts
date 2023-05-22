@@ -2,7 +2,7 @@ import { merge, times } from 'lodash';
 import type { PartialDeep } from 'type-fest';
 import { ModelAdapter } from './adapters/adapter.interface';
 import { Association } from './association';
-import { DefaultAttributesFactory } from './interfaces';
+import { AdditionalParams, DefaultAttributesFactory } from './interfaces';
 import { Dictionary } from './types';
 import { InstanceOrInterface } from './types/instance-or-interface.type';
 
@@ -84,6 +84,25 @@ export class Factory<
     }
 
     return times(count).map(() => this.build(partials, additionalParams));
+  }
+
+  extend(
+    newDefaultAttributesFactory: DefaultAttributesFactory<Attributes, Params>,
+  ): Factory<Model, Attributes, Params, ReturnType> {
+    const decoratedDefaultAttributesFactory = (
+      additionalParams: AdditionalParams<Params>,
+    ) => {
+      const defaultAttributes = this.defaultAttributesFactory(additionalParams);
+      return merge(
+        defaultAttributes,
+        newDefaultAttributesFactory(additionalParams),
+      );
+    };
+    return new Factory(
+      decoratedDefaultAttributesFactory,
+      this.model,
+      this.adapter,
+    );
   }
 
   private resolveAssociations(additionalParams?: Params): Attributes {

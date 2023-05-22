@@ -260,6 +260,25 @@ const addressFromFirstUser = await addressFactory.create({
 });
 ```
 
+### Extending Factories
+
+You can extend a factory by using the `extend()` method. This allows you to create a new factory that inherits the attributes of the parent factory, while also adding new attributes.
+
+```ts
+const companyEmailUser = userFactory.extend(() => ({
+  email: 'user@company.com',
+}));
+
+const user = companyEmailUser.build();
+console.log(user.email); // Output: 'user@company'
+```
+
+The strategy above is helpful to create factories to abstract common use cases.
+
 In summary, `factory-girl-ts` allows you to handle model associations seamlessly. The `associate()` method is a powerful tool that helps you link models together using their attributes, making it easier than ever to create complex data structures for your tests.
 
 Stay tuned for more features and improvements. We are continuously working to make `factory-girl-ts` the most intuitive and efficient tool for generating test data in TypeScript!
+
+```
+
+```
