@@ -74,7 +74,7 @@ const defaultAttributesFactory = () => ({
     country: 'Some country',
   },
 });
-const userFactory = new FactoryGirl(User, defaultAttributesFactory);
+const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
 
 // Step 3: Use the factory to create instances of the model.
 const defaultUser = userFactory.build();
@@ -115,7 +115,7 @@ const defaultAttributesFactory = () => ({
   name: 'John',
   email: 'some-email@mail.com',
 });
-const userFactory = new FactoryGirl(User, defaultAttributesFactory);
+const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
 
 // 3. Create multiple instances of the model.
 const users = userFactory.buildMany(2);
@@ -171,7 +171,7 @@ const defaultAttributesFactory = () => ({
     country: 'Some country',
   },
 });
-const userFactory = new FactoryGirl(User, defaultAttributesFactory);
+const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
 
 // Step 3: Use the factory to create instances of the model.
 const defaultUser = await userFactory.create();
