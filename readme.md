@@ -6,7 +6,7 @@
 
 ## Why `factory-girl-ts`?
 
-While `factory-girl` is a renowned library for creating test data in Node.js, it hasn't been updated since 2018. `factory-girl-ts` was born to fulfill the need for an updated, TypeScript-compatible library focusing on ease of use, especially when it comes to creating associations and asynchronous operations.
+While [factory-girl](https://www.npmjs.com/package/factory-girl) is a renowned library for creating test data in Node.js, it hasn't been updated since 2018. `factory-girl-ts` was born to fulfill the need for an updated, TypeScript-compatible library focusing on ease of use, especially when it comes to creating associations and asynchronous operations.
 
 ## TL;DR
 
@@ -275,10 +275,25 @@ console.log(user.email); // Output: 'user@company'
 
 The strategy above is helpful to create factories to abstract common use cases.
 
+### Factory Hooks
+
+You can also define hooks to run after creating an instance. This might be handy when there is custom logic or async logic to be executed.
+
+```ts
+const adminUserFactory = userFactory.afterCreate((user) => {
+  const userRole = await userRoleFactory.create({
+    userId: user.id,
+    role: 'admin',
+  });
+  user.userRole = userRole;
+  return user;
+});
+```
+
+The `afterCreate()` hooks return a brand new factory, so you can chain as many hooks as you want. Moreover, this hook requires that the input model (in the example above, a `User`) is returned.
+
+### Conclusion
+
 In summary, `factory-girl-ts` allows you to handle model associations seamlessly. The `associate()` method is a powerful tool that helps you link models together using their attributes, making it easier than ever to create complex data structures for your tests.
 
 Stay tuned for more features and improvements. We are continuously working to make `factory-girl-ts` the most intuitive and efficient tool for generating test data in TypeScript!
-
-```
-
-```

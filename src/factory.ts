@@ -2,7 +2,11 @@ import { merge, times } from 'lodash';
 import type { PartialDeep } from 'type-fest';
 import { ModelAdapter } from './adapters/adapter.interface';
 import { Association } from './association';
-import { AdditionalParams, DefaultAttributesFactory } from './interfaces';
+import {
+  AdditionalParams,
+  AfterCreateHook,
+  DefaultAttributesFactory,
+} from './interfaces';
 import { Dictionary } from './types';
 import { InstanceOrInterface } from './types/instance-or-interface.type';
 
@@ -19,6 +23,7 @@ export class Factory<
     >,
     private readonly model: Model,
     private readonly adapter: ModelAdapter<Model, ReturnType>,
+    private readonly afterCreateHooks: AfterCreateHook<ReturnType>[] = [],
   ) {}
 
   associate<K extends keyof ReturnType>(
@@ -41,7 +46,7 @@ export class Factory<
     const finalAttributes = merge(defaultAttributesWithAssociations, override);
     const built = this.build(finalAttributes, additionalParams);
     const createdModel = await this.adapter.save(built, this.model);
-    return createdModel;
+    return await this.resolveHooks(createdModel);
   }
 
   async createMany(
@@ -106,6 +111,25 @@ export class Factory<
       this.model,
       this.adapter,
     );
+  }
+
+  afterCreate(
+    afterCreateHook: AfterCreateHook<ReturnType>,
+  ): Factory<Model, Attributes, Params, ReturnType> {
+    return new Factory(
+      this.defaultAttributesFactory,
+      this.model,
+      this.adapter,
+      [...this.afterCreateHooks, afterCreateHook],
+    );
+  }
+
+  private async resolveHooks(returnedObject: ReturnType): Promise<ReturnType> {
+    for (const hook of this.afterCreateHooks) {
+      returnedObject = await hook(returnedObject);
+    }
+
+    return returnedObject;
   }
 
   private resolveAssociations(additionalParams?: Params): Attributes {

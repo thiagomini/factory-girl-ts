@@ -305,6 +305,43 @@ describe('Typeorm integration', () => {
       });
     });
 
+    it('creates a User model with afterCreate hook', async () => {
+      const defaultAttributesFactory = () => ({
+        name: 'John',
+        email: 'some-email@mail.com',
+      });
+      const userFactory = FactoryGirl.define(
+        UserActiveRecord,
+        defaultAttributesFactory,
+      );
+      const userFactoryWithAfterCreate = userFactory.afterCreate(
+        async (user) => {
+          user.name = 'JohnAfterCreate';
+          await user.save();
+          return user;
+        },
+      );
+
+      // Act
+      const user = await userFactoryWithAfterCreate.create();
+
+      // Assert
+      const userInDatabase = await UserActiveRecord.findOneBy({
+        id: user.id,
+      });
+
+      expect(user).toEqual({
+        id: expect.any(Number),
+        name: 'JohnAfterCreate',
+        email: 'some-email@mail.com',
+      });
+      expect(userInDatabase).toEqual({
+        id: expect.any(Number),
+        name: 'JohnAfterCreate',
+        email: 'some-email@mail.com',
+      });
+    });
+
     it('creates an Address model with association', async () => {
       const userFactory = FactoryGirl.define(
         UserActiveRecord,
