@@ -164,6 +164,38 @@ describe('Factory', () => {
         email: 'user@company.com',
       });
     });
+
+    it('should build with sequence', () => {
+      // Arrange
+      const userFactory = FactoryGirl.define(plainObject<User>(), () => {
+        return {
+          name: 'John Doe',
+          email: FactoryGirl.sequence(
+            'user.email',
+            (n: number) => `test-${n}@mail.com`,
+          ),
+          address: {
+            street: 'Main Street',
+            number: 123,
+            city: 'New York',
+          },
+        };
+      });
+
+      // Act
+      const user = userFactory.build();
+
+      // Assert
+      expect(user).toEqual({
+        name: 'John Doe',
+        email: 'test-1@mail.com',
+        address: {
+          street: 'Main Street',
+          number: 123,
+          city: 'New York',
+        },
+      });
+    });
   });
 
   describe('buildMany', () => {
@@ -242,6 +274,33 @@ describe('Factory', () => {
           email: 'modified-email@mail.com',
         },
       ]);
+    });
+
+    it('should build many entities with sequences', () => {
+      // Arrange
+      const userFactory = FactoryGirl.define(plainObject<User>(), () => {
+        return {
+          name: 'John Doe',
+          email: FactoryGirl.sequence(
+            'users.email',
+            (n: number) => `test-${n}@mail.com`,
+          ),
+          address: {
+            street: 'Main Street',
+            number: 123,
+            city: 'New York',
+          },
+        };
+      });
+
+      // Act
+      const users = userFactory.buildMany(10);
+
+      // Assert
+      expect(users[0].email).toEqual('test-1@mail.com');
+      expect(users[5].email).toEqual('test-6@mail.com');
+      expect(users[9].email).toEqual('test-10@mail.com');
+      console.log(users);
     });
 
     describe('when using transient params', () => {
