@@ -10,7 +10,7 @@ export class FactoryGirl {
 
   static sequences = new Map<string, number>();
 
-  static sequence(id: string, callback: (seq: number) => number | string) {
+  static sequence<T>(id: string, callback: (seq: number) => T) {
     let seq = FactoryGirl.sequences.get(id);
     if (seq === undefined) seq = 0;
     seq++;
