@@ -300,7 +300,6 @@ describe('Factory', () => {
       expect(users[0].email).toEqual('test-1@mail.com');
       expect(users[5].email).toEqual('test-6@mail.com');
       expect(users[9].email).toEqual('test-10@mail.com');
-      console.log(users);
     });
 
     describe('when using transient params', () => {
