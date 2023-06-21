@@ -82,6 +82,45 @@ console.log(defaultUser);
 // Output: { name: 'John', email: 'some-email@mail.com', state: 'Some state', country: 'Some country' }
 ```
 
+#### Sequences
+
+Instead of providing a hardcoded value, we can tell `factory-girl-ts` to instead use a sequence.
+The first parameter is an unique id. It can be used for sharing sequence across multiple factories.
+The second parameter is a callback that give you an integer auto-incremented that you can use for construct your value.
+
+```ts
+import { User } from './models/user';
+import { FactoryGirl, SequelizeAdapter } from 'factory-girl-ts';
+
+// Step 1: Specify the adapter for your ORM.
+FactoryGirl.setAdapter(new SequelizeAdapter());
+
+// Step 2: Define your factory with default attributes for the model.
+const defaultAttributesFactory = () => ({
+  name: 'John',
+  email: FactoryGirl.sequence<string>(
+    'user.email',
+    (n: number) => `some-email-${n}@mail.com`,
+  ),
+  address: {
+    state: 'Some state',
+    country: 'Some country',
+  },
+});
+const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+// Step 3: Use the factory to create instances of the model.
+const defaultUser = userFactory.build();
+console.log(defaultUser);
+// Output: { name: 'John', email: 'some-email-1@mail.com', state: 'Some state', country: 'Some country' }
+const defaultUser2 = userFactory.build();
+console.log(defaultUser2);
+// Output: { name: 'John', email: 'some-email-2@mail.com', state: 'Some state', country: 'Some country' }
+const defaultUser3 = userFactory.build();
+console.log(defaultUser3);
+// Output: { name: 'John', email: 'some-email-3@mail.com', state: 'Some state', country: 'Some country' }
+```
+
 ### Overriding Default Properties
 
 You can override default properties when creating a model instance:
