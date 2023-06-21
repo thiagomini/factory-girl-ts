@@ -236,6 +236,31 @@ describe('Sequelize Integration', () => {
     expect(userInDatabase?.dataValues).toEqual(user.dataValues);
   });
 
+  it('creates a User model with sequences', async () => {
+    // Arrange
+    const defaultAttributesFactory = () => {
+      return {
+        name: 'John',
+        email: FactoryGirl.sequence(
+          'email',
+          (n: number) => `test-${n}@mail.com`,
+        ),
+      };
+    };
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+    // Act
+    const user = await userFactory.create();
+
+    // Assert
+    expect(user.id).toEqual(expect.any(Number));
+    expect(user.get('name')).toEqual('John');
+    expect(user.get('email')).toEqual('test-1@mail.com');
+
+    const userInDatabase = await User.findByPk(user.get('id'));
+    expect(userInDatabase?.dataValues).toEqual(user.dataValues);
+  });
+
   it('creates many User models', async () => {
     // Arrange
     const defaultAttributesFactory = () => ({
@@ -264,5 +289,39 @@ describe('Sequelize Integration', () => {
       },
     });
     expect(usersInDatabase).toHaveLength(2);
+  });
+
+  it('creates many User models with sequences', async () => {
+    // Arrange
+    const defaultAttributesFactory = () => ({
+      name: faker.name.firstName(),
+      email: FactoryGirl.sequence('email', (n: number) => `test-${n}@mail.com`),
+    });
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+    // Act
+    const users = await userFactory.createMany(2, [
+      {
+        name: 'third',
+      },
+      {
+        name: 'forth',
+      },
+    ]);
+
+    // Assert
+    expect(users[0].get('name')).toEqual('third');
+    expect(users[1].get('name')).toEqual('forth');
+    expect(users[0].get('email')).toEqual('test-2@mail.com');
+    expect(users[1].get('email')).toEqual('test-3@mail.com');
+
+    const usersInDatabase = await User.findAll({
+      where: {
+        name: ['third', 'forth'],
+      },
+    });
+    expect(usersInDatabase).toHaveLength(2);
+    expect(usersInDatabase[0].get('email')).toEqual('test-2@mail.com');
+    expect(usersInDatabase[1].get('email')).toEqual('test-3@mail.com');
   });
 });

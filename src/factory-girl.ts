@@ -8,6 +8,16 @@ import { InstanceOrInterface } from './types/instance-or-interface.type';
 export class FactoryGirl {
   static adapter: ModelAdapter<unknown, unknown> = new ObjectAdapter();
 
+  static sequences = new Map<string, number>();
+
+  static sequence<T>(id: string, callback: (seq: number) => T) {
+    let seq = FactoryGirl.sequences.get(id);
+    if (seq === undefined) seq = 0;
+    seq++;
+    FactoryGirl.sequences.set(id, seq);
+    return callback(seq);
+  }
+
   static setAdapter(adapter: ModelAdapter<unknown, unknown>): void {
     this.adapter = adapter;
   }
@@ -26,5 +36,9 @@ export class FactoryGirl {
       model,
       this.adapter as ModelAdapter<ModelOrInterface, ReturnType>,
     );
+  }
+
+  static cleanUp(): void {
+    FactoryGirl.sequences.clear();
   }
 }
