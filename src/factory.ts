@@ -54,9 +54,13 @@ export class Factory<
     partials?: PartialDeep<Attributes>[] | PartialDeep<Attributes>,
     additionalParams?: Params,
   ): Promise<ReturnType[]> {
-    const builtModels = this.buildMany(count, partials, additionalParams);
     return await Promise.all(
-      builtModels.map((model) => this.adapter.save(model, this.model)),
+      times(count).map((_partial, index) => {
+        return this.create(
+          Array.isArray(partials) ? partials?.[index] : partials,
+          additionalParams,
+        );
+      }),
     );
   }
 

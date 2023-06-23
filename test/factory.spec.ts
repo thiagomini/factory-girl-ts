@@ -523,6 +523,49 @@ describe('Factory', () => {
         },
       ]);
     });
+
+    it('should create many with associated factory', async () => {
+      // Arrange
+      const addressFactory = FactoryGirl.define(plainObject<Address>(), () => {
+        return {
+          street: 'Main Street',
+          number: FactoryGirl.sequence('number', (n) => n),
+          city: 'New York',
+        };
+      });
+      const userFactory = FactoryGirl.define(plainObject<User>(), () => {
+        return {
+          name: 'John Doe',
+          email: FactoryGirl.sequence('email', (n) => `test-${n}@mail.com`),
+          address: addressFactory.associate(),
+        };
+      });
+
+      // Act
+      const users = await userFactory.createMany(2);
+
+      // Assert
+      expect(users).toEqual([
+        {
+          name: 'John Doe',
+          email: 'test-1@mail.com',
+          address: {
+            street: 'Main Street',
+            number: 1,
+            city: 'New York',
+          },
+        },
+        {
+          name: 'John Doe',
+          email: 'test-2@mail.com',
+          address: {
+            street: 'Main Street',
+            number: 2,
+            city: 'New York',
+          },
+        },
+      ]);
+    });
   });
 
   describe('extend', () => {
