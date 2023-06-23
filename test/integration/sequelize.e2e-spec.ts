@@ -324,4 +324,49 @@ describe('Sequelize Integration', () => {
     expect(usersInDatabase[0].get('email')).toEqual('test-2@mail.com');
     expect(usersInDatabase[1].get('email')).toEqual('test-3@mail.com');
   });
+
+  it('creates many User models with associated relationship', async () => {
+    // Arrange
+    const defaultAttributesFactory = () => ({
+      name: 'jone',
+      email: FactoryGirl.sequence(
+        'mail',
+        (n: number) => `jone-snow-${n}@mail.com`,
+      ),
+    });
+
+    const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+    const addressFactory = FactoryGirl.define(Address, () => ({
+      street: '123 Fake St.',
+      city: 'Springfield',
+      state: 'IL',
+      zip: '90210',
+      userId: userFactory.associate('id'),
+    }));
+
+    // Act
+    const users = await userFactory.createMany(2, [
+      {
+        name: 'jone',
+      },
+      {
+        name: 'snow',
+      },
+    ]);
+
+    // Assert
+    expect(users[0].get('name')).toEqual('jone');
+    expect(users[1].get('name')).toEqual('snow');
+    expect(users[0].get('email')).toEqual('jone-snow-1@mail.com');
+    expect(users[1].get('email')).toEqual('jone-snow-2@mail.com');
+
+    const usersInDatabase = await User.findAll({
+      where: {
+        name: ['jone', 'snow'],
+      },
+    });
+    expect(usersInDatabase).toHaveLength(2);
+    expect(usersInDatabase[0].get('email')).toEqual('jone-snow-1@mail.com');
+    expect(usersInDatabase[1].get('email')).toEqual('jone-snow-2@mail.com');
+  });
 });
