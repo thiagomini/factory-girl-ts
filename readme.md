@@ -84,9 +84,9 @@ console.log(defaultUser);
 
 #### Sequences
 
-Instead of providing a hardcoded value, we can tell `factory-girl-ts` to instead use a sequence.
+Instead of providing a hardcoded value, we can tell `factory-girl-ts` to use a sequence.
 The first parameter is an unique id. It can be used for sharing sequence across multiple factories.
-The second parameter is a callback that give you an integer auto-incremented that you can use for construct your value.
+The second parameter is a callback that gives you an integer auto-incremented that you can use to build your value.
 
 ```ts
 import { User } from './models/user';
