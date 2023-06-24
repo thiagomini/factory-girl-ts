@@ -44,7 +44,11 @@ export class Factory<
       await this.resolveAssociationsAsync(additionalParams);
 
     const finalAttributes = merge(defaultAttributesWithAssociations, override);
-    const built = this.build(finalAttributes, additionalParams, false);
+    const built = this.adapter.build(
+      this.model,
+      finalAttributes as PartialDeep<InstanceOrInterface<Model>>,
+    );
+
     const createdModel = await this.adapter.save(built, this.model);
     return await this.resolveHooks(createdModel);
   }
@@ -67,16 +71,13 @@ export class Factory<
   build(
     override?: PartialDeep<Attributes>,
     additionalParams?: Params,
-    shouldResolveAttributes = true,
   ): ReturnType {
     let mergedAttributes = override;
 
-    if (shouldResolveAttributes) {
-      const attributesWithAssociations =
-        this.resolveAssociations(additionalParams);
+    const attributesWithAssociations =
+      this.resolveAssociations(additionalParams);
 
-      mergedAttributes = merge(attributesWithAssociations, override);
-    }
+    mergedAttributes = merge(attributesWithAssociations, override);
 
     const finalResult = this.adapter.build(
       this.model,
