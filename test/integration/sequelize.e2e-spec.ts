@@ -336,13 +336,6 @@ describe('Sequelize Integration', () => {
     });
 
     const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
-    const addressFactory = FactoryGirl.define(Address, () => ({
-      street: '123 Fake St.',
-      city: 'Springfield',
-      state: 'IL',
-      zip: '90210',
-      userId: userFactory.associate('id'),
-    }));
 
     // Act
     const users = await userFactory.createMany(2, [
@@ -364,6 +357,7 @@ describe('Sequelize Integration', () => {
       where: {
         name: ['jone', 'snow'],
       },
+      order: [['email', 'ASC']],
     });
     expect(usersInDatabase).toHaveLength(2);
     expect(usersInDatabase[0].get('email')).toEqual('jone-snow-1@mail.com');

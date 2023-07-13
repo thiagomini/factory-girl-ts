@@ -17,9 +17,8 @@ export class TypeOrmRepositoryAdapter<
       { recurseIntoArrays: true }
     >,
   ): ReturnType {
-    const instance = new ModelClass();
-    Object.assign(instance, props);
-    return instance;
+    const repo = this.getRepositoryForModel(ModelClass);
+    return repo.create(props as ReturnType);
   }
 
   async save(model: ReturnType, modelClass: TClass): Promise<ReturnType> {

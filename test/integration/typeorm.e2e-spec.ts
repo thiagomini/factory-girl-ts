@@ -46,7 +46,7 @@ describe('Typeorm integration', () => {
       FactoryGirl.setAdapter(new TypeOrmRepositoryAdapter(dataSource));
     });
 
-    it('builds a User model', () => {
+    it('builds a User model with methods', () => {
       // Arrange
       const userFactory = FactoryGirl.define(
         User,
@@ -60,6 +60,7 @@ describe('Typeorm integration', () => {
       expect(user.id).toBe(1);
       expect(user.name).toBe('John');
       expect(user.email).toBe('some-email@mail.com');
+      expect(user.greetings()).toBe('Hello John');
     });
 
     it('builds a model with association', () => {
@@ -124,6 +125,22 @@ describe('Typeorm integration', () => {
         email: 'some-email@mail.com',
         phoneNumber: new PhoneNumber('1234567890'),
       });
+    });
+
+    it('creates a User model preserving the public methods', async () => {
+      const defaultAttributesFactory = () => ({
+        name: 'John',
+        email: 'some-email@mail.com',
+        phoneNumber: new PhoneNumber('1234567890'),
+      });
+      const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
+
+      // Act
+      const user = await userFactory.create();
+
+      // Assert
+      expect(user.greetings).toBeDefined();
+      expect(user.greetings()).toBe('Hello John');
     });
 
     it('creates an Address model with association', async () => {

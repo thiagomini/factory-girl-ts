@@ -33,6 +33,10 @@ export class User {
     },
   })
   phoneNumber?: PhoneNumber;
+
+  public greetings(): string {
+    return `Hello ${this.name}`;
+  }
 }
 
 @Entity()
