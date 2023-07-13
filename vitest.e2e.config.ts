@@ -6,6 +6,6 @@ export default mergeConfig(defaultConfig, {
     include: ['**/*.(e2e|int)-spec.ts'],
     threads: false,
     globalSetup: ['./test/global-setup.ts'],
-    testTimeout: 60000,
+    testTimeout: 1000,
   },
 });

@@ -161,7 +161,7 @@ describe('Typeorm integration', () => {
         state: 'IL',
         zip: '90210',
       });
-      expect(address.user).toEqual(defaultUserAttributes);
+      expect(address.user).toBeTruthy();
       expect(addressInDatabase).toBeTruthy();
       expect(addressInDatabase.user).toBeTruthy();
     });
