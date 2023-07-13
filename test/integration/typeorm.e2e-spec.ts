@@ -154,14 +154,14 @@ describe('Typeorm integration', () => {
         },
       });
 
-      expect(address).toEqual({
+      expect(address).toMatchObject({
         id: expect.any(Number),
         street: '123 Fake St.',
         city: 'Springfield',
         state: 'IL',
         zip: '90210',
-        user: defaultUserAttributes,
       });
+      expect(address.user).toEqual(defaultUserAttributes);
       expect(addressInDatabase).toBeTruthy();
       expect(addressInDatabase.user).toBeTruthy();
     });
