@@ -160,12 +160,7 @@ describe('Typeorm integration', () => {
         city: 'Springfield',
         state: 'IL',
         zip: '90210',
-        user: {
-          id: expect.any(Number),
-          name: 'John',
-          email: 'some-email@mail.com',
-          phoneNumber: null,
-        },
+        user: defaultUserAttributes,
       });
       expect(addressInDatabase).toBeTruthy();
       expect(addressInDatabase.user).toBeTruthy();
