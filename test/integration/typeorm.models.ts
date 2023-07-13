@@ -6,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { PhoneNumber } from './phone.value';
 
 @Entity()
 export class User {
@@ -21,6 +22,17 @@ export class User {
     type: 'varchar',
   })
   email!: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    transformer: {
+      to: (phoneNumber: PhoneNumber) => phoneNumber?.value,
+      from: (phoneNumber: string) =>
+        phoneNumber && new PhoneNumber(phoneNumber),
+    },
+  })
+  phoneNumber?: PhoneNumber;
 }
 
 @Entity()
@@ -67,6 +79,17 @@ export class UserActiveRecord extends BaseEntity {
     type: 'varchar',
   })
   email!: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    transformer: {
+      to: (phoneNumber: PhoneNumber) => phoneNumber?.value,
+      from: (phoneNumber: string) =>
+        phoneNumber && new PhoneNumber(phoneNumber),
+    },
+  })
+  phoneNumber?: PhoneNumber;
 }
 
 @Entity()

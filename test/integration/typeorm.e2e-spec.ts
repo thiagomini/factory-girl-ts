@@ -8,6 +8,7 @@ import {
   UserActiveRecord,
 } from '@test/integration/typeorm.models';
 import { DataSource } from 'typeorm';
+import { PhoneNumber } from './phone.value';
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -19,6 +20,13 @@ const dataSource = new DataSource({
   synchronize: true,
   entities: [User, Address, UserActiveRecord, AddressActiveRecord],
 });
+
+const defaultUserAttributes = {
+  id: expect.any(Number),
+  name: expect.any(String),
+  email: expect.any(String),
+  phoneNumber: null,
+};
 
 describe('Typeorm integration', () => {
   beforeAll(async () => {
@@ -91,6 +99,7 @@ describe('Typeorm integration', () => {
       const defaultAttributesFactory = () => ({
         name: 'John',
         email: 'some-email@mail.com',
+        phoneNumber: new PhoneNumber('1234567890'),
       });
       const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
 
@@ -107,11 +116,13 @@ describe('Typeorm integration', () => {
         id: expect.any(Number),
         name: 'John',
         email: 'some-email@mail.com',
+        phoneNumber: new PhoneNumber('1234567890'),
       });
       expect(userInDatabase).toEqual({
         id: expect.any(Number),
         name: 'John',
         email: 'some-email@mail.com',
+        phoneNumber: new PhoneNumber('1234567890'),
       });
     });
 
@@ -153,6 +164,7 @@ describe('Typeorm integration', () => {
           id: expect.any(Number),
           name: 'John',
           email: 'some-email@mail.com',
+          phoneNumber: null,
         },
       });
       expect(addressInDatabase).toBeTruthy();
@@ -229,12 +241,12 @@ describe('Typeorm integration', () => {
       });
 
       expect(user).toEqual({
-        id: expect.any(Number),
+        ...defaultUserAttributes,
         name: 'John',
         email: 'some-email@mail.com',
       });
       expect(userInDatabase).toEqual({
-        id: expect.any(Number),
+        ...defaultUserAttributes,
         name: 'John',
         email: 'some-email@mail.com',
       });
@@ -261,12 +273,11 @@ describe('Typeorm integration', () => {
       });
 
       expect(user).toEqual({
-        id: expect.any(Number),
+        ...defaultUserAttributes,
         name: 'JohnModified',
-        email: expect.any(String),
       });
       expect(userInDatabase).toEqual({
-        id: expect.any(Number),
+        ...defaultUserAttributes,
         name: 'JohnModified',
         email: user.email,
       });
@@ -294,14 +305,12 @@ describe('Typeorm integration', () => {
       });
 
       expect(user).toEqual({
-        id: expect.any(Number),
+        ...defaultUserAttributes,
         name: 'JohnExtended',
-        email: 'some-email@mail.com',
       });
       expect(userInDatabase).toEqual({
-        id: expect.any(Number),
+        ...defaultUserAttributes,
         name: 'JohnExtended',
-        email: 'some-email@mail.com',
       });
     });
 
@@ -331,14 +340,12 @@ describe('Typeorm integration', () => {
       });
 
       expect(user).toEqual({
-        id: expect.any(Number),
+        ...defaultUserAttributes,
         name: 'JohnAfterCreate',
-        email: 'some-email@mail.com',
       });
       expect(userInDatabase).toEqual({
-        id: expect.any(Number),
+        ...defaultUserAttributes,
         name: 'JohnAfterCreate',
-        email: 'some-email@mail.com',
       });
     });
 

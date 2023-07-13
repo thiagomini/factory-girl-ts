@@ -1,4 +1,3 @@
-import { plainToInstance } from 'class-transformer';
 import { Class, PartialDeep } from 'type-fest';
 import { DataSource, ObjectLiteral } from 'typeorm';
 import { InstanceOrInterface } from '../types/instance-or-interface.type';
@@ -18,7 +17,9 @@ export class TypeOrmRepositoryAdapter<
       { recurseIntoArrays: true }
     >,
   ): ReturnType {
-    return plainToInstance(ModelClass, props);
+    const instance = new ModelClass();
+    Object.assign(instance, props);
+    return instance;
   }
 
   async save(model: ReturnType, modelClass: TClass): Promise<ReturnType> {
