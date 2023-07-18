@@ -34,7 +34,7 @@ export class FactoryGirl {
     return new Factory<ModelOrInterface, Attributes, Parameters, ReturnType>(
       defaultAttributesFactory,
       model,
-      this.adapter as ModelAdapter<ModelOrInterface, ReturnType>,
+      () => this.adapter as ModelAdapter<ModelOrInterface, ReturnType>,
     );
   }
 

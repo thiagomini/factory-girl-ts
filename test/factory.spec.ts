@@ -1,5 +1,7 @@
+import { test } from 'node:test';
 import { FactoryGirl } from '@src/factory-girl';
 import { plainObject } from '@src/utils';
+import { ObjectAdapter, SequelizeAdapter } from '../lib';
 
 type User = {
   id: number;
@@ -618,6 +620,26 @@ describe('Factory', () => {
         ...buildUserAttributes(),
         email: 'transient@mail.com',
       });
+    });
+  });
+
+  describe('with adapter', () => {
+    it('always get the most up to date adapter instance', () => {
+      // Arrange
+      FactoryGirl.setAdapter(new SequelizeAdapter());
+      const userFactory = FactoryGirl.define(plainObject<User>(), () => {
+        return {
+          name: 'John Doe',
+          email: '',
+        };
+      });
+      FactoryGirl.setAdapter(new ObjectAdapter());
+
+      // Act
+      const user = userFactory.build();
+
+      // Assert
+      expect(user).toBeTruthy();
     });
   });
 });

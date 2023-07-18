@@ -29,6 +29,8 @@ const defaultUserAttributes = {
 };
 
 describe('Typeorm integration', () => {
+  FactoryGirl.setAdapter(new TypeOrmRepositoryAdapter(dataSource));
+
   beforeAll(async () => {
     await dataSource.initialize();
     await dataSource.getRepository(Address).delete({});
@@ -42,10 +44,6 @@ describe('Typeorm integration', () => {
   });
 
   describe('Repository pattern', () => {
-    beforeEach(() => {
-      FactoryGirl.setAdapter(new TypeOrmRepositoryAdapter(dataSource));
-    });
-
     it('builds a User model with methods', () => {
       // Arrange
       const userFactory = FactoryGirl.define(

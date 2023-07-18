@@ -22,9 +22,13 @@ export class Factory<
       Params
     >,
     private readonly model: Model,
-    private readonly adapter: ModelAdapter<Model, ReturnType>,
+    private readonly _adapter: () => ModelAdapter<Model, ReturnType>,
     private readonly afterCreateHooks: AfterCreateHook<ReturnType>[] = [],
   ) {}
+
+  public get adapter() {
+    return this._adapter();
+  }
 
   associate<K extends keyof ReturnType>(
     key?: K | undefined,
@@ -119,7 +123,7 @@ export class Factory<
     return new Factory(
       decoratedDefaultAttributesFactory,
       this.model,
-      this.adapter,
+      this._adapter,
     );
   }
 
@@ -129,7 +133,7 @@ export class Factory<
     return new Factory(
       this.defaultAttributesFactory,
       this.model,
-      this.adapter,
+      this._adapter,
       [...this.afterCreateHooks, afterCreateHook],
     );
   }
