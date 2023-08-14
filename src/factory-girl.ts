@@ -2,7 +2,7 @@ import { ModelAdapter } from './adapters/adapter.interface';
 import { ObjectAdapter } from './adapters/object.adapter';
 import { Factory } from './factory';
 import { DefaultAttributesFactory } from './interfaces';
-import { Dictionary } from './types';
+import { DeepPartialAttributes, Dictionary } from './types';
 import { InstanceOrInterface } from './types/instance-or-interface.type';
 
 export class FactoryGirl {
@@ -24,8 +24,8 @@ export class FactoryGirl {
 
   static define<
     ModelOrInterface,
-    Parameters extends Dictionary = Dictionary,
-    Attributes extends Dictionary = Dictionary,
+    Attributes = DeepPartialAttributes<ModelOrInterface>,
+    Parameters = Dictionary,
     ReturnType extends InstanceOrInterface<ModelOrInterface> = InstanceOrInterface<ModelOrInterface>,
   >(
     model: ModelOrInterface,

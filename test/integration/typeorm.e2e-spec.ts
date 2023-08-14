@@ -80,7 +80,7 @@ describe('Typeorm integration', () => {
       const address = addressFactory.build();
 
       // Assert
-      expect(address).toEqual<Address>({
+      expect(address).toEqual({
         city: 'Springfield',
         id: 1,
         state: 'IL',
@@ -218,7 +218,7 @@ describe('Typeorm integration', () => {
       const address = addressFactory.build();
 
       // Assert
-      expect(address).toEqual<Address>({
+      expect(address).toEqual({
         city: 'Springfield',
         id: 1,
         state: 'IL',

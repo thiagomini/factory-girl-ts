@@ -27,8 +27,8 @@
     "pretty": true /* Stylize errors and messages using color and context. */,
 
     "lib": ["es2017"],
-    "types": ["node", "vitest/globals"],
-    "typeRoots": ["node_modules/@types", "src/types"],
+    "types": ["vitest/globals"],
+    "typeRoots": ["node_modules", "src/types"],
     "paths": {
       "@src/*": ["src/*"],
       "@test/*": ["test/*"]

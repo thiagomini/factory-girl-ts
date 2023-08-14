@@ -10,12 +10,7 @@ import {
 import { Dictionary } from './types';
 import { InstanceOrInterface } from './types/instance-or-interface.type';
 
-export class Factory<
-  Model,
-  Attributes extends Dictionary,
-  Params extends Dictionary,
-  ReturnType = Attributes,
-> {
+export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
   constructor(
     private readonly defaultAttributesFactory: DefaultAttributesFactory<
       Attributes,
@@ -152,8 +147,8 @@ export class Factory<
     });
     const defaultWithAssociations: Dictionary = {};
 
-    for (const prop in attributes) {
-      const value = attributes[prop];
+    for (const prop in attributes as Dictionary) {
+      const value = attributes[prop as keyof typeof attributes];
       if (isAssociation(value)) {
         defaultWithAssociations[prop] = value.build();
       } else {
@@ -170,8 +165,8 @@ export class Factory<
     });
     const defaultWithAssociations: Dictionary = {};
 
-    for (const prop in attributes) {
-      const value = attributes[prop];
+    for (const prop in attributes as Dictionary) {
+      const value = attributes[prop as keyof typeof attributes];
       if (isAssociation(value)) {
         defaultWithAssociations[prop] = await value.create();
       } else {
