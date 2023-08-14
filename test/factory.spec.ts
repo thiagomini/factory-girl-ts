@@ -1,7 +1,8 @@
-import { test } from 'node:test';
 import { FactoryGirl } from '@src/factory-girl';
 import { plainObject } from '@src/utils';
+import { DeepPartial } from 'typeorm';
 import { ObjectAdapter, SequelizeAdapter } from '../lib';
+import { DeepPartialAttributes } from '../src';
 
 type User = {
   id: number;
@@ -74,17 +75,20 @@ describe('Factory', () => {
 
     it('should build with deep merged partial properties', () => {
       // Arrange
-      const userFactory = FactoryGirl.define(plainObject<User>(), () => {
-        return {
-          name: 'John Doe',
-          email: 'test@mail.com',
-          address: {
-            street: 'Main Street',
-            number: 123,
-            city: 'New York',
-          },
-        };
-      });
+      const userFactory = FactoryGirl.define<User, DeepPartial<User>>(
+        plainObject<User>(),
+        () => {
+          return {
+            name: 'John Doe',
+            email: 'test@mail.com',
+            address: {
+              street: 'Main Street',
+              number: 123,
+              city: 'New York',
+            },
+          };
+        },
+      );
 
       // Act
       const user = userFactory.build({
@@ -145,17 +149,18 @@ describe('Factory', () => {
       };
       const userAttributes = buildUserAttributes();
 
-      const userFactory = FactoryGirl.define<User, UserTransientParams>(
-        plainObject<User>(),
-        ({ transientParams }) => {
-          return {
-            ...userAttributes,
-            email: transientParams?.companyUser
-              ? 'user@company.com'
-              : userAttributes.email,
-          };
-        },
-      );
+      const userFactory = FactoryGirl.define<
+        User,
+        DeepPartialAttributes<User>,
+        UserTransientParams
+      >(plainObject<User>(), ({ transientParams }) => {
+        return {
+          ...userAttributes,
+          email: transientParams?.companyUser
+            ? 'user@company.com'
+            : userAttributes.email,
+        };
+      });
 
       // Act
       const user = userFactory.build({}, { companyUser: true });
@@ -312,6 +317,7 @@ describe('Factory', () => {
 
       const userFactoryWithTransient = FactoryGirl.define<
         User,
+        DeepPartialAttributes<User>,
         UserTransientParams
       >(plainObject<User>(), ({ transientParams }) => {
         return {
@@ -596,10 +602,11 @@ describe('Factory', () => {
         email?: string;
       };
 
-      const userFactory = FactoryGirl.define<User, UserTransientParams>(
-        plainObject<User>(),
-        buildUserAttributes,
-      );
+      const userFactory = FactoryGirl.define<
+        User,
+        DeepPartialAttributes<User>,
+        UserTransientParams
+      >(plainObject<User>(), buildUserAttributes);
 
       // Act
       const companyEmailUserFactory = userFactory.extend(

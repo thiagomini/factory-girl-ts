@@ -4,8 +4,8 @@ import { Factory } from './factory';
 import { Dictionary } from './types';
 export class Association<
   Model,
-  Attributes extends Dictionary = Dictionary,
-  Params extends Dictionary = Dictionary,
+  Attributes = Dictionary,
+  Params = Dictionary,
   ReturnType = Attributes,
 > {
   constructor(
