@@ -24,7 +24,7 @@ export class FactoryGirl {
 
   static define<
     ModelOrInterface,
-    Attributes = DeepPartialAttributes<ModelOrInterface>,
+    Attributes = DeepPartialAttributes<InstanceOrInterface<ModelOrInterface>>,
     Parameters = Dictionary,
     ReturnType extends InstanceOrInterface<ModelOrInterface> = InstanceOrInterface<ModelOrInterface>,
   >(
