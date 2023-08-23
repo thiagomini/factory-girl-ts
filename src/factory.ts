@@ -192,6 +192,8 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
   }
 }
 
-function isAssociation<T>(value: T | Association<T>): value is Association<T> {
+function isAssociation<T>(
+  value: T | Association<T> | unknown,
+): value is Association<T> {
   return value instanceof Association;
 }

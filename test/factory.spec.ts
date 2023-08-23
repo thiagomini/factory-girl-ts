@@ -559,7 +559,7 @@ describe('Factory', () => {
   });
 
   describe('extend', () => {
-    it('extends the factory with new attributes', () => {
+    it('extends the factory with custom attributes', () => {
       // Arrange
       const userFactory = FactoryGirl.define(
         plainObject<User>(),
@@ -610,10 +610,29 @@ describe('Factory', () => {
         email: 'transient@mail.com',
       });
     });
+
+    it('extends the factory with new attributes', () => {
+      // Arrange
+      const userFactory = FactoryGirl.define(
+        plainObject<User>(),
+        buildUserAttributes,
+      );
+
+      // Act
+      const companyEmailUserFactory = userFactory.extend(() => ({
+        anotherAttribute: 'value',
+      }));
+
+      // Assert
+      expect(companyEmailUserFactory.build()).toEqual({
+        ...buildUserAttributes(),
+        anotherAttribute: 'value',
+      });
+    });
   });
 
   describe('mutate', () => {
-    it('should allow mutating the return type of a factory', async () => {
+    it('should allow mutating the return type of a factory (create)', async () => {
       // Arrange
       interface Employee {
         id: number;
