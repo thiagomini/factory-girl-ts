@@ -133,6 +133,20 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
   }
 
+  mutate<NewType>(callback: (model: Model) => NewType | Promise<NewType>) {
+    const newHook = async (model: Model) => {
+      const newModel = await callback(model);
+      return newModel;
+    };
+
+    return new Factory<Model, Attributes, Params, NewType>(
+      this.defaultAttributesFactory,
+      this.model,
+      this._adapter as any,
+      [...this.afterCreateHooks, newHook as any],
+    );
+  }
+
   private async resolveHooks(returnedObject: ReturnType): Promise<ReturnType> {
     for (const hook of this.afterCreateHooks) {
       returnedObject = await hook(returnedObject);
@@ -178,6 +192,8 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
   }
 }
 
-function isAssociation<T>(value: T | Association<T>): value is Association<T> {
+function isAssociation<T>(
+  value: T | Association<T> | unknown,
+): value is Association<T> {
   return value instanceof Association;
 }

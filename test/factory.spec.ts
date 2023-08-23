@@ -1,6 +1,5 @@
 import { FactoryGirl } from '@src/factory-girl';
 import { plainObject } from '@src/utils';
-import { DeepPartial } from 'typeorm';
 import { ObjectAdapter, SequelizeAdapter } from '../lib';
 import { DeepPartialAttributes } from '../src';
 
@@ -43,21 +42,20 @@ function buildAddressAttributes(): Address {
 }
 
 describe('Factory', () => {
+  const userFactory = FactoryGirl.define(plainObject<User>(), () => {
+    return {
+      name: 'John Doe',
+      email: 'test@mail.com',
+      address: {
+        street: 'Main Street',
+        number: 123,
+        city: 'New York',
+      },
+    };
+  });
+
   describe('build', () => {
     it('should build the given type with all properties', () => {
-      // Arrange
-      const userFactory = FactoryGirl.define(plainObject<User>(), () => {
-        return {
-          name: 'John Doe',
-          email: 'test@mail.com',
-          address: {
-            street: 'Main Street',
-            number: 123,
-            city: 'New York',
-          },
-        };
-      });
-
       // Act
       const user = userFactory.build();
 
@@ -74,22 +72,6 @@ describe('Factory', () => {
     });
 
     it('should build with deep merged partial properties', () => {
-      // Arrange
-      const userFactory = FactoryGirl.define<User, DeepPartial<User>>(
-        plainObject<User>(),
-        () => {
-          return {
-            name: 'John Doe',
-            email: 'test@mail.com',
-            address: {
-              street: 'Main Street',
-              number: 123,
-              city: 'New York',
-            },
-          };
-        },
-      );
-
       // Act
       const user = userFactory.build({
         name: 'Jane Doe',
@@ -577,7 +559,7 @@ describe('Factory', () => {
   });
 
   describe('extend', () => {
-    it('extends the factory with new attributes', () => {
+    it('extends the factory with custom attributes', () => {
       // Arrange
       const userFactory = FactoryGirl.define(
         plainObject<User>(),
@@ -626,6 +608,51 @@ describe('Factory', () => {
       ).toEqual({
         ...buildUserAttributes(),
         email: 'transient@mail.com',
+      });
+    });
+
+    it('extends the factory with new attributes', () => {
+      // Arrange
+      const userFactory = FactoryGirl.define(
+        plainObject<User>(),
+        buildUserAttributes,
+      );
+
+      // Act
+      const companyEmailUserFactory = userFactory.extend(() => ({
+        anotherAttribute: 'value',
+      }));
+
+      // Assert
+      expect(companyEmailUserFactory.build()).toEqual({
+        ...buildUserAttributes(),
+        anotherAttribute: 'value',
+      });
+    });
+  });
+
+  describe('mutate', () => {
+    it('should allow mutating the return type of a factory (create)', async () => {
+      // Arrange
+      interface Employee {
+        id: number;
+        name: string;
+        companyName: string;
+      }
+      const employeeFactory = userFactory.mutate<Employee>((user) => ({
+        id: 1,
+        name: user.name,
+        companyName: 'ACME',
+      }));
+
+      // Act
+      const employee = await employeeFactory.create();
+
+      // Assert
+      expect(employee).toEqual({
+        id: 1,
+        name: 'John Doe',
+        companyName: 'ACME',
       });
     });
   });
