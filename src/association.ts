@@ -13,6 +13,7 @@ export class Association<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private readonly adapter: ModelAdapter<any, ReturnType>,
     private readonly key?: keyof ReturnType,
+    private readonly cachedModel?: Promise<ReturnType>,
   ) {}
 
   build(): ReturnType | ValueOf<ReturnType> {
@@ -26,6 +27,11 @@ export class Association<
   }
 
   async create(): Promise<ReturnType | ValueOf<ReturnType>> {
+    if (this.cachedModel) {
+      const cachedModelAwaited = await this.cachedModel;
+      return this.adapter.get(cachedModelAwaited, this.key as keyof ReturnType);
+    }
+
     const createdModel = await this.factory.create();
 
     if (this.key) {
@@ -33,5 +39,13 @@ export class Association<
     }
 
     return createdModel;
+  }
+
+  get(
+    key: keyof ReturnType,
+  ): Association<Model, Attributes, Params, ReturnType> {
+    const cachedModel: Promise<ReturnType> =
+      this.cachedModel ?? (this.create() as Promise<ReturnType>);
+    return new Association(this.factory, this.adapter, key, cachedModel);
   }
 }
