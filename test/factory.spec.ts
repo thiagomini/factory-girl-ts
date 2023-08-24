@@ -682,6 +682,32 @@ describe('Factory', () => {
           name: 'After Build Name',
         });
       });
+
+      test('should modify the built entity with multiple hooks', async () => {
+        // Arrange
+        const extendedFactory = userFactory
+          .afterBuild((user) => {
+            user.name = 'After Build Name';
+            return user;
+          })
+          .afterBuild(async (user) => {
+            user.address.city = await Promise.resolve('After Build City');
+            return user;
+          });
+
+        // Act
+        const user = await extendedFactory.build();
+
+        // Assert
+        expect(user).toEqual({
+          ...buildUserAttributes(),
+          name: 'After Build Name',
+          address: {
+            ...buildAddressAttributes(),
+            city: 'After Build City',
+          },
+        });
+      });
     });
   });
 });
