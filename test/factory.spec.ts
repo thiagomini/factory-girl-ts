@@ -48,17 +48,17 @@ describe('Factory', () => {
   );
 
   describe('build', () => {
-    it('should build the given type with all properties', () => {
+    it('should build the given type with all properties', async () => {
       // Act
-      const user = userFactory.build();
+      const user = await userFactory.build();
 
       // Assert
       expect(user).toEqual(buildUserAttributes());
     });
 
-    it('should build with deep merged partial properties', () => {
+    it('should build with deep merged partial properties', async () => {
       // Act
-      const user = userFactory.build({
+      const user = await userFactory.build({
         name: 'Jane Doe',
         address: {
           number: 456,
@@ -79,7 +79,7 @@ describe('Factory', () => {
       });
     });
 
-    it('should build with associated factory', () => {
+    it('should build with associated factory', async () => {
       // Arrange
       const addressFactory = FactoryGirl.define(plainObject<Address>(), () => {
         return {
@@ -97,7 +97,7 @@ describe('Factory', () => {
       });
 
       // Act
-      const user = userFactory.build();
+      const user = await userFactory.build();
 
       // Assert
       expect(user).toEqual({
@@ -111,7 +111,7 @@ describe('Factory', () => {
       });
     });
 
-    it('builds with transient parameters', () => {
+    it('builds with transient parameters', async () => {
       // Arrange
       type UserTransientParams = {
         companyUser: boolean;
@@ -132,7 +132,7 @@ describe('Factory', () => {
       });
 
       // Act
-      const user = userFactory.build({}, { companyUser: true });
+      const user = await userFactory.build({}, { companyUser: true });
 
       // Assert
       expect(user).toEqual({
@@ -141,7 +141,7 @@ describe('Factory', () => {
       });
     });
 
-    it('should build with sequence', () => {
+    it('should build with sequence', async () => {
       // Arrange
       const userFactory = FactoryGirl.define(plainObject<User>(), () => {
         return {
@@ -159,7 +159,7 @@ describe('Factory', () => {
       });
 
       // Act
-      const user = userFactory.build();
+      const user = await userFactory.build();
 
       // Assert
       expect(user).toEqual({
@@ -175,7 +175,7 @@ describe('Factory', () => {
   });
 
   describe('buildMany', () => {
-    it('should build many entities', () => {
+    it('should build many entities', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
       const userFactory = FactoryGirl.define(
@@ -184,13 +184,13 @@ describe('Factory', () => {
       );
 
       // Act
-      const users = userFactory.buildMany(2);
+      const users = await userFactory.buildMany(2);
 
       // Assert
       expect(users).toEqual([userAttributes, userAttributes]);
     });
 
-    it('should build many entities with given properties', () => {
+    it('should build many entities with given properties', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
       const userFactory = FactoryGirl.define(
@@ -199,7 +199,7 @@ describe('Factory', () => {
       );
 
       // Act
-      const users = userFactory.buildMany(2, [
+      const users = await userFactory.buildMany(2, [
         {
           name: 'Jane Doe',
         },
@@ -226,7 +226,7 @@ describe('Factory', () => {
       ]);
     });
 
-    it('should build many entities with the same properties', () => {
+    it('should build many entities with the same properties', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
       const userFactory = FactoryGirl.define(
@@ -235,7 +235,7 @@ describe('Factory', () => {
       );
 
       // Act
-      const users = userFactory.buildMany(2, {
+      const users = await userFactory.buildMany(2, {
         email: 'modified-email@mail.com',
       });
 
@@ -252,7 +252,7 @@ describe('Factory', () => {
       ]);
     });
 
-    it('should build many entities with sequences', () => {
+    it('should build many entities with sequences', async () => {
       // Arrange
       const userFactory = FactoryGirl.define(plainObject<User>(), () => {
         return {
@@ -270,7 +270,7 @@ describe('Factory', () => {
       });
 
       // Act
-      const users = userFactory.buildMany(10);
+      const users = await userFactory.buildMany(10);
 
       // Assert
       expect(users[0].email).toEqual('test-1@mail.com');
@@ -297,9 +297,9 @@ describe('Factory', () => {
         };
       });
 
-      it('builds with transient parameters', () => {
+      it('builds with transient parameters', async () => {
         // Act
-        const users = userFactoryWithTransient.buildMany(2, undefined, {
+        const users = await userFactoryWithTransient.buildMany(2, undefined, {
           companyUser: true,
         });
 
@@ -316,9 +316,9 @@ describe('Factory', () => {
         ]);
       });
 
-      it('builds with custom and transient parameters', () => {
+      it('builds with custom and transient parameters', async () => {
         // Act
-        const users = userFactoryWithTransient.buildMany(
+        const users = await userFactoryWithTransient.buildMany(
           2,
           {
             name: 'Jane Doe',
@@ -341,9 +341,9 @@ describe('Factory', () => {
         ]);
       });
 
-      it('builds with array of custom parameters AND transient parameters', () => {
+      it('builds with array of custom parameters AND transient parameters', async () => {
         // Act
-        const users = userFactoryWithTransient.buildMany(
+        const users = await userFactoryWithTransient.buildMany(
           2,
           [
             {
@@ -546,7 +546,7 @@ describe('Factory', () => {
   });
 
   describe('extend', () => {
-    it('extends the factory with custom attributes', () => {
+    it('extends the factory with custom attributes', async () => {
       // Arrange
       const userFactory = FactoryGirl.define(
         plainObject<User>(),
@@ -559,13 +559,13 @@ describe('Factory', () => {
       }));
 
       // Assert
-      expect(companyEmailUserFactory.build()).toEqual({
+      await expect(companyEmailUserFactory.build()).resolves.toEqual({
         ...buildUserAttributes(),
         email: 'user@company.com',
       });
     });
 
-    it('extends the factory with transient attributes', () => {
+    it('extends the factory with transient attributes', async () => {
       // Arrange
       type UserTransientParams = {
         email?: string;
@@ -585,20 +585,20 @@ describe('Factory', () => {
       );
 
       // Assert
-      expect(
+      await expect(
         companyEmailUserFactory.build(
           {},
           {
             email: 'transient@mail.com',
           },
         ),
-      ).toEqual({
+      ).resolves.toEqual({
         ...buildUserAttributes(),
         email: 'transient@mail.com',
       });
     });
 
-    it('extends the factory with new attributes', () => {
+    it('extends the factory with new attributes', async () => {
       // Arrange
       const userFactory = FactoryGirl.define(
         plainObject<User>(),
@@ -611,7 +611,7 @@ describe('Factory', () => {
       }));
 
       // Assert
-      expect(companyEmailUserFactory.build()).toEqual({
+      await expect(companyEmailUserFactory.build()).resolves.toEqual({
         ...buildUserAttributes(),
         anotherAttribute: 'value',
       });
@@ -677,7 +677,7 @@ describe('Factory', () => {
   });
 
   describe('with adapter', () => {
-    it('always get the most up to date adapter instance', () => {
+    it('always get the most up to date adapter instance', async () => {
       // Arrange
       FactoryGirl.setAdapter(new SequelizeAdapter());
       const userFactory = FactoryGirl.define(plainObject<User>(), () => {
@@ -689,7 +689,7 @@ describe('Factory', () => {
       FactoryGirl.setAdapter(new ObjectAdapter());
 
       // Act
-      const user = userFactory.build();
+      const user = await userFactory.build();
 
       // Assert
       expect(user).toBeTruthy();

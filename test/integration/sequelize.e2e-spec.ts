@@ -111,7 +111,7 @@ describe('Sequelize Integration', () => {
     const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
 
     // Act
-    const user = userFactory.build();
+    const user = await userFactory.build();
 
     // Assert
     expect(user.get('name')).toEqual('John');
@@ -137,7 +137,7 @@ describe('Sequelize Integration', () => {
     }));
 
     // Act
-    const address = addressFactory.build();
+    const address = await addressFactory.build();
 
     // Assert
     expect(address.get('street')).toBe('123 Fake St.');

@@ -68,14 +68,15 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
   }
 
-  build(
+  async build(
     override?: PartialDeep<Attributes>,
     additionalParams?: Params,
-  ): ReturnType {
+  ): Promise<ReturnType> {
     let mergedAttributes = override;
 
-    const attributesWithAssociations =
-      this.resolveAssociations(additionalParams);
+    const attributesWithAssociations = await this.resolveAssociations(
+      additionalParams,
+    );
 
     mergedAttributes = merge(attributesWithAssociations, override);
 
@@ -87,18 +88,21 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     return finalResult;
   }
 
-  buildMany(
+  async buildMany(
     count: number,
     partials?: PartialDeep<Attributes>[] | PartialDeep<Attributes>,
     additionalParams?: Params,
-  ): ReturnType[] {
+  ): Promise<ReturnType[]> {
     if (Array.isArray(partials)) {
-      return times(count).map((_partial, index: number) =>
+      const buildPromises = times(count).map((_partial, index: number) =>
         this.build(partials?.[index], additionalParams),
       );
+      return await Promise.all(buildPromises);
     }
 
-    return times(count).map(() => this.build(partials, additionalParams));
+    return await Promise.all(
+      times(count).map(() => this.build(partials, additionalParams)),
+    );
   }
 
   extend<ExtendedParams extends Params = Params>(
@@ -156,7 +160,9 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     return returnedObject;
   }
 
-  private resolveAssociations(additionalParams?: Params): Attributes {
+  private async resolveAssociations(
+    additionalParams?: Params,
+  ): Promise<Attributes> {
     const attributes = this.defaultAttributesFactory({
       transientParams: additionalParams,
     });
@@ -165,7 +171,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     for (const prop in attributes as Dictionary) {
       const value = attributes[prop as keyof typeof attributes];
       if (isAssociation(value)) {
-        defaultWithAssociations[prop] = value.build();
+        defaultWithAssociations[prop] = await value.build();
       } else {
         defaultWithAssociations[prop] = value;
       }

@@ -16,8 +16,8 @@ export class Association<
     private readonly cachedModel?: Promise<ReturnType>,
   ) {}
 
-  build(): ReturnType | ValueOf<ReturnType> {
-    const built = this.factory.build();
+  async build(): Promise<ReturnType | ValueOf<ReturnType>> {
+    const built = await this.factory.build();
 
     if (this.key) {
       return this.adapter.get(built, this.key);
