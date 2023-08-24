@@ -665,6 +665,23 @@ describe('Factory', () => {
           name: 'After Build Name',
         });
       });
+
+      test('should modify the built entity with an async hook', async () => {
+        // Arrange
+        const userFactoryExtended = userFactory.afterBuild(async (user) => {
+          user.name = await Promise.resolve('After Build Name');
+          return user;
+        });
+
+        // Act
+        const user = await userFactoryExtended.build();
+
+        // Assert
+        expect(user).toEqual({
+          ...buildUserAttributes(),
+          name: 'After Build Name',
+        });
+      });
     });
   });
 });
