@@ -178,10 +178,6 @@ describe('Factory', () => {
     it('should build many entities', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
-      const userFactory = FactoryGirl.define(
-        plainObject<User>(),
-        () => userAttributes,
-      );
 
       // Act
       const users = await userFactory.buildMany(2);
@@ -193,10 +189,6 @@ describe('Factory', () => {
     it('should build many entities with given properties', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
-      const userFactory = FactoryGirl.define(
-        plainObject<User>(),
-        () => userAttributes,
-      );
 
       // Act
       const users = await userFactory.buildMany(2, [
@@ -229,10 +221,6 @@ describe('Factory', () => {
     it('should build many entities with the same properties', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
-      const userFactory = FactoryGirl.define(
-        plainObject<User>(),
-        () => userAttributes,
-      );
 
       // Act
       const users = await userFactory.buildMany(2, {
@@ -382,10 +370,6 @@ describe('Factory', () => {
     it('creates an entity', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
-      const userFactory = FactoryGirl.define(
-        plainObject<User>(),
-        () => userAttributes,
-      );
 
       // Act
       const user = await userFactory.create();
@@ -397,10 +381,6 @@ describe('Factory', () => {
     it('creates an entity with associations', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
-      const userFactory = FactoryGirl.define(
-        plainObject<User>(),
-        () => userAttributes,
-      );
       const addressAttributes = buildAddressAttributes();
       const addressFactory = FactoryGirl.define(plainObject<Address>(), () => ({
         ...addressAttributes,
@@ -420,10 +400,6 @@ describe('Factory', () => {
     it('creates many entities', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
-      const userFactory = FactoryGirl.define(
-        plainObject<User>(),
-        () => userAttributes,
-      );
 
       // Act
       const users = await userFactory.createMany(2);
@@ -433,13 +409,6 @@ describe('Factory', () => {
     });
 
     it('creates many entities with the same props', async () => {
-      // Arrange
-      const userAttributes = buildUserAttributes();
-      const userFactory = FactoryGirl.define(
-        plainObject<User>(),
-        () => userAttributes,
-      );
-
       // Act
       const users = await userFactory.createMany(2, {
         name: 'same-name',
@@ -452,10 +421,10 @@ describe('Factory', () => {
       ]);
     });
 
-    it('creates many entities custom and transient parameters', async () => {
+    it('creates many entities with custom and transient parameters', async () => {
       // Arrange
       const userAttributes = buildUserAttributes();
-      const userFactory = FactoryGirl.define(
+      const userFactoryWithTransientParams = FactoryGirl.define(
         plainObject<User>(),
         ({ transientParams }) => ({
           ...userAttributes,
@@ -466,7 +435,7 @@ describe('Factory', () => {
       );
 
       // Act
-      const users = await userFactory.createMany(
+      const users = await userFactoryWithTransientParams.createMany(
         2,
         [
           {
@@ -547,12 +516,6 @@ describe('Factory', () => {
 
   describe('extend', () => {
     it('extends the factory with custom attributes', async () => {
-      // Arrange
-      const userFactory = FactoryGirl.define(
-        plainObject<User>(),
-        buildUserAttributes,
-      );
-
       // Act
       const companyEmailUserFactory = userFactory.extend(() => ({
         email: 'user@company.com',
@@ -571,14 +534,8 @@ describe('Factory', () => {
         email?: string;
       };
 
-      const userFactory = FactoryGirl.define<
-        User,
-        DeepPartialAttributes<User>,
-        UserTransientParams
-      >(plainObject<User>(), buildUserAttributes);
-
       // Act
-      const companyEmailUserFactory = userFactory.extend(
+      const companyEmailUserFactory = userFactory.extend<UserTransientParams>(
         ({ transientParams }) => ({
           email: transientParams?.email ?? '',
         }),
@@ -599,12 +556,6 @@ describe('Factory', () => {
     });
 
     it('extends the factory with new attributes', async () => {
-      // Arrange
-      const userFactory = FactoryGirl.define(
-        plainObject<User>(),
-        buildUserAttributes,
-      );
-
       // Act
       const companyEmailUserFactory = userFactory.extend(() => ({
         anotherAttribute: 'value',
