@@ -646,4 +646,25 @@ describe('Factory', () => {
       expect(user).toBeTruthy();
     });
   });
+
+  describe('hooks', () => {
+    describe('afterBuild', () => {
+      test('should modify the built entity', async () => {
+        // Arrange
+        const userFactoryExtended = userFactory.afterBuild((user) => {
+          user.name = 'After Build Name';
+          return user;
+        });
+
+        // Act
+        const user = await userFactoryExtended.build();
+
+        // Assert
+        expect(user).toEqual({
+          ...buildUserAttributes(),
+          name: 'After Build Name',
+        });
+      });
+    });
+  });
 });

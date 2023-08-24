@@ -5,6 +5,7 @@ import { ModelAdapter } from './adapters/adapter.interface';
 import { Association } from './association';
 import {
   AdditionalParams,
+  AfterBuildHook,
   AfterCreateHook,
   DefaultAttributesFactory,
 } from './interfaces';
@@ -20,6 +21,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     private readonly model: Model,
     private readonly _adapter: () => ModelAdapter<Model, ReturnType>,
     private readonly afterCreateHooks: AfterCreateHook<ReturnType>[] = [],
+    private readonly afterBuildHooks: AfterBuildHook<ReturnType>[] = [],
   ) {}
 
   public get adapter() {
@@ -52,7 +54,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
 
     const createdModel = await this.adapter.save(built, this.model);
-    return await this.resolveHooks(createdModel);
+    return await this.resolveCreateHooks(createdModel);
   }
 
   async createMany(
@@ -88,7 +90,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
       mergedAttributes as PartialDeep<InstanceOrInterface<Model>>,
     );
 
-    return finalResult;
+    return await this.resolveBuildHooks(finalResult);
   }
 
   async buildMany(
@@ -141,6 +143,18 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
   }
 
+  afterBuild(
+    afterBuildHook: AfterBuildHook<ReturnType>,
+  ): Factory<Model, Attributes, Params, ReturnType> {
+    return new Factory(
+      this.defaultAttributesFactory,
+      this.model,
+      this._adapter,
+      this.afterCreateHooks,
+      [...this.afterBuildHooks, afterBuildHook],
+    );
+  }
+
   mutate<NewType>(callback: (model: Model) => NewType | Promise<NewType>) {
     const newHook = async (model: Model) => {
       const newModel = await callback(model);
@@ -155,8 +169,20 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
   }
 
-  private async resolveHooks(returnedObject: ReturnType): Promise<ReturnType> {
+  private async resolveCreateHooks(
+    returnedObject: ReturnType,
+  ): Promise<ReturnType> {
     for (const hook of this.afterCreateHooks) {
+      returnedObject = await hook(returnedObject);
+    }
+
+    return returnedObject;
+  }
+
+  private async resolveBuildHooks(
+    returnedObject: ReturnType,
+  ): Promise<ReturnType> {
+    for (const hook of this.afterBuildHooks) {
       returnedObject = await hook(returnedObject);
     }
 
