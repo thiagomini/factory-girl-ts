@@ -567,6 +567,19 @@ describe('Factory', () => {
         anotherAttribute: 'value',
       });
     });
+
+    it('extends the factory with async attributes', async () => {
+      // Act
+      const companyEmailUserFactory = userFactory.extend(async () => ({
+        email: await Promise.resolve('user@company.com'),
+      }));
+
+      // Assert
+      await expect(companyEmailUserFactory.build()).resolves.toEqual({
+        ...buildUserAttributes(),
+        email: 'user@company.com',
+      });
+    });
   });
 
   describe('associate', () => {

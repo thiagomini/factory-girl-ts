@@ -116,13 +116,15 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
       ExtendedParams
     >,
   ): Factory<Model, Attributes, ExtendedParams, ReturnType> {
-    const decoratedDefaultAttributesFactory = (
+    const decoratedDefaultAttributesFactory = async (
       additionalParams: AdditionalParams<ExtendedParams>,
     ) => {
-      const defaultAttributes = this.defaultAttributesFactory(additionalParams);
+      const defaultAttributes = await this.defaultAttributesFactory(
+        additionalParams,
+      );
       return merge(
         defaultAttributes,
-        newDefaultAttributesFactory(additionalParams),
+        await newDefaultAttributesFactory(additionalParams),
       );
     };
     return new Factory(
@@ -193,7 +195,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     associationType: 'build' | 'create',
     additionalParams?: Params,
   ): Promise<Attributes> {
-    const attributes = this.defaultAttributesFactory({
+    const attributes = await this.defaultAttributesFactory({
       transientParams: additionalParams,
     });
     const defaultWithAssociations: Dictionary = {};
