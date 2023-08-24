@@ -44,7 +44,7 @@ describe('Typeorm integration', () => {
   });
 
   describe('Repository pattern', () => {
-    it('builds a User model with methods', () => {
+    it('builds a User model with methods', async () => {
       // Arrange
       const userFactory = FactoryGirl.define(
         User,
@@ -52,7 +52,7 @@ describe('Typeorm integration', () => {
       );
 
       // Act
-      const user = userFactory.build();
+      const user = await userFactory.build();
 
       // Assert
       expect(user.id).toBe(1);
@@ -61,7 +61,7 @@ describe('Typeorm integration', () => {
       expect(user.greetings()).toBe('Hello John');
     });
 
-    it('builds a model with association', () => {
+    it('builds a model with association', async () => {
       // Arrange
       const userFactory = FactoryGirl.define(
         User,
@@ -77,7 +77,7 @@ describe('Typeorm integration', () => {
       }));
 
       // Act
-      const address = addressFactory.build();
+      const address = await addressFactory.build();
 
       // Assert
       expect(address).toEqual({
@@ -183,7 +183,7 @@ describe('Typeorm integration', () => {
   });
 
   describe('Active Record pattern', () => {
-    it('builds a User model', () => {
+    it('builds a User model', async () => {
       // Arrange
       const userFactory = FactoryGirl.define(
         UserActiveRecord,
@@ -191,7 +191,7 @@ describe('Typeorm integration', () => {
       );
 
       // Act
-      const user = userFactory.build();
+      const user = await userFactory.build();
 
       // Assert
       expect(user.id).toBe(1);
@@ -199,7 +199,7 @@ describe('Typeorm integration', () => {
       expect(user.email).toBe('some-email@mail.com');
     });
 
-    it('builds a model with association', () => {
+    it('builds a model with association', async () => {
       // Arrange
       const userFactory = FactoryGirl.define(
         UserActiveRecord,
@@ -215,7 +215,7 @@ describe('Typeorm integration', () => {
       }));
 
       // Act
-      const address = addressFactory.build();
+      const address = await addressFactory.build();
 
       // Assert
       expect(address).toEqual({

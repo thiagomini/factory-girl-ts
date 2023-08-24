@@ -5,6 +5,7 @@ import { ModelAdapter } from './adapters/adapter.interface';
 import { Association } from './association';
 import {
   AdditionalParams,
+  AfterBuildHook,
   AfterCreateHook,
   DefaultAttributesFactory,
 } from './interfaces';
@@ -20,6 +21,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     private readonly model: Model,
     private readonly _adapter: () => ModelAdapter<Model, ReturnType>,
     private readonly afterCreateHooks: AfterCreateHook<ReturnType>[] = [],
+    private readonly afterBuildHooks: AfterBuildHook<ReturnType>[] = [],
   ) {}
 
   public get adapter() {
@@ -40,8 +42,10 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     override?: PartialDeep<Attributes>,
     additionalParams?: Params,
   ): Promise<ReturnType> {
-    const defaultAttributesWithAssociations =
-      await this.resolveAssociationsAsync(additionalParams);
+    const defaultAttributesWithAssociations = await this.resolveAssociations(
+      'create',
+      additionalParams,
+    );
 
     const finalAttributes = merge(defaultAttributesWithAssociations, override);
     const built = this.adapter.build(
@@ -50,7 +54,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
 
     const createdModel = await this.adapter.save(built, this.model);
-    return await this.resolveHooks(createdModel);
+    return await this.resolveCreateHooks(createdModel);
   }
 
   async createMany(
@@ -68,14 +72,16 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
   }
 
-  build(
+  async build(
     override?: PartialDeep<Attributes>,
     additionalParams?: Params,
-  ): ReturnType {
+  ): Promise<ReturnType> {
     let mergedAttributes = override;
 
-    const attributesWithAssociations =
-      this.resolveAssociations(additionalParams);
+    const attributesWithAssociations = await this.resolveAssociations(
+      'build',
+      additionalParams,
+    );
 
     mergedAttributes = merge(attributesWithAssociations, override);
 
@@ -84,21 +90,24 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
       mergedAttributes as PartialDeep<InstanceOrInterface<Model>>,
     );
 
-    return finalResult;
+    return await this.resolveBuildHooks(finalResult);
   }
 
-  buildMany(
+  async buildMany(
     count: number,
     partials?: PartialDeep<Attributes>[] | PartialDeep<Attributes>,
     additionalParams?: Params,
-  ): ReturnType[] {
+  ): Promise<ReturnType[]> {
     if (Array.isArray(partials)) {
-      return times(count).map((_partial, index: number) =>
+      const buildPromises = times(count).map((_partial, index: number) =>
         this.build(partials?.[index], additionalParams),
       );
+      return await Promise.all(buildPromises);
     }
 
-    return times(count).map(() => this.build(partials, additionalParams));
+    return await Promise.all(
+      times(count).map(() => this.build(partials, additionalParams)),
+    );
   }
 
   extend<ExtendedParams extends Params = Params>(
@@ -107,13 +116,15 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
       ExtendedParams
     >,
   ): Factory<Model, Attributes, ExtendedParams, ReturnType> {
-    const decoratedDefaultAttributesFactory = (
+    const decoratedDefaultAttributesFactory = async (
       additionalParams: AdditionalParams<ExtendedParams>,
     ) => {
-      const defaultAttributes = this.defaultAttributesFactory(additionalParams);
+      const defaultAttributes = await this.defaultAttributesFactory(
+        additionalParams,
+      );
       return merge(
         defaultAttributes,
-        newDefaultAttributesFactory(additionalParams),
+        await newDefaultAttributesFactory(additionalParams),
       );
     };
     return new Factory(
@@ -134,6 +145,18 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
   }
 
+  afterBuild(
+    afterBuildHook: AfterBuildHook<ReturnType>,
+  ): Factory<Model, Attributes, Params, ReturnType> {
+    return new Factory(
+      this.defaultAttributesFactory,
+      this.model,
+      this._adapter,
+      this.afterCreateHooks,
+      [...this.afterBuildHooks, afterBuildHook],
+    );
+  }
+
   mutate<NewType>(callback: (model: Model) => NewType | Promise<NewType>) {
     const newHook = async (model: Model) => {
       const newModel = await callback(model);
@@ -148,7 +171,9 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
   }
 
-  private async resolveHooks(returnedObject: ReturnType): Promise<ReturnType> {
+  private async resolveCreateHooks(
+    returnedObject: ReturnType,
+  ): Promise<ReturnType> {
     for (const hook of this.afterCreateHooks) {
       returnedObject = await hook(returnedObject);
     }
@@ -156,26 +181,21 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     return returnedObject;
   }
 
-  private resolveAssociations(additionalParams?: Params): Attributes {
-    const attributes = this.defaultAttributesFactory({
-      transientParams: additionalParams,
-    });
-    const defaultWithAssociations: Dictionary = {};
-
-    for (const prop in attributes as Dictionary) {
-      const value = attributes[prop as keyof typeof attributes];
-      if (isAssociation(value)) {
-        defaultWithAssociations[prop] = value.build();
-      } else {
-        defaultWithAssociations[prop] = value;
-      }
+  private async resolveBuildHooks(
+    returnedObject: ReturnType,
+  ): Promise<ReturnType> {
+    for (const hook of this.afterBuildHooks) {
+      returnedObject = await hook(returnedObject);
     }
 
-    return defaultWithAssociations as Attributes;
+    return returnedObject;
   }
 
-  private async resolveAssociationsAsync(additionalParams?: Params) {
-    const attributes = this.defaultAttributesFactory({
+  private async resolveAssociations(
+    associationType: 'build' | 'create',
+    additionalParams?: Params,
+  ): Promise<Attributes> {
+    const attributes = await this.defaultAttributesFactory({
       transientParams: additionalParams,
     });
     const defaultWithAssociations: Dictionary = {};
@@ -183,7 +203,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     for (const prop in attributes as Dictionary) {
       const value = attributes[prop as keyof typeof attributes];
       if (isAssociation(value)) {
-        defaultWithAssociations[prop] = await value.create();
+        defaultWithAssociations[prop] = await value[associationType]();
       } else {
         defaultWithAssociations[prop] = value;
       }
