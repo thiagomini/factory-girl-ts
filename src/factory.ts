@@ -40,8 +40,10 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     override?: PartialDeep<Attributes>,
     additionalParams?: Params,
   ): Promise<ReturnType> {
-    const defaultAttributesWithAssociations =
-      await this.resolveAssociationsAsync(additionalParams);
+    const defaultAttributesWithAssociations = await this.resolveAssociations(
+      'create',
+      additionalParams,
+    );
 
     const finalAttributes = merge(defaultAttributesWithAssociations, override);
     const built = this.adapter.build(
@@ -75,6 +77,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     let mergedAttributes = override;
 
     const attributesWithAssociations = await this.resolveAssociations(
+      'build',
       additionalParams,
     );
 
@@ -161,6 +164,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
   }
 
   private async resolveAssociations(
+    associationType: 'build' | 'create',
     additionalParams?: Params,
   ): Promise<Attributes> {
     const attributes = this.defaultAttributesFactory({
@@ -171,25 +175,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     for (const prop in attributes as Dictionary) {
       const value = attributes[prop as keyof typeof attributes];
       if (isAssociation(value)) {
-        defaultWithAssociations[prop] = await value.build();
-      } else {
-        defaultWithAssociations[prop] = value;
-      }
-    }
-
-    return defaultWithAssociations as Attributes;
-  }
-
-  private async resolveAssociationsAsync(additionalParams?: Params) {
-    const attributes = this.defaultAttributesFactory({
-      transientParams: additionalParams,
-    });
-    const defaultWithAssociations: Dictionary = {};
-
-    for (const prop in attributes as Dictionary) {
-      const value = attributes[prop as keyof typeof attributes];
-      if (isAssociation(value)) {
-        defaultWithAssociations[prop] = await value.create();
+        defaultWithAssociations[prop] = await value[associationType]();
       } else {
         defaultWithAssociations[prop] = value;
       }
