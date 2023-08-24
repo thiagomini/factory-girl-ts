@@ -42,17 +42,10 @@ function buildAddressAttributes(): Address {
 }
 
 describe('Factory', () => {
-  const userFactory = FactoryGirl.define(plainObject<User>(), () => {
-    return {
-      name: 'John Doe',
-      email: 'test@mail.com',
-      address: {
-        street: 'Main Street',
-        number: 123,
-        city: 'New York',
-      },
-    };
-  });
+  const userFactory = FactoryGirl.define(
+    plainObject<User>(),
+    buildUserAttributes,
+  );
 
   describe('build', () => {
     it('should build the given type with all properties', () => {
@@ -60,15 +53,7 @@ describe('Factory', () => {
       const user = userFactory.build();
 
       // Assert
-      expect(user).toEqual({
-        name: 'John Doe',
-        email: 'test@mail.com',
-        address: {
-          street: 'Main Street',
-          number: 123,
-          city: 'New York',
-        },
-      });
+      expect(user).toEqual(buildUserAttributes());
     });
 
     it('should build with deep merged partial properties', () => {
@@ -82,9 +67,11 @@ describe('Factory', () => {
 
       // Assert
       expect(user).toEqual({
+        id: expect.any(Number),
         name: 'Jane Doe',
-        email: 'test@mail.com',
+        email: 'user@mail.com',
         address: {
+          id: expect.any(Number),
           street: 'Main Street',
           number: 456,
           city: 'New York',
@@ -627,6 +614,38 @@ describe('Factory', () => {
       expect(companyEmailUserFactory.build()).toEqual({
         ...buildUserAttributes(),
         anotherAttribute: 'value',
+      });
+    });
+  });
+
+  describe('associate', () => {
+    it('should allow reusing an association', async () => {
+      // Arrange
+      type AddressWithUserData = {
+        city: string;
+        userEmail: number;
+        userName: string;
+      };
+      const addressFactory = FactoryGirl.define(
+        plainObject<AddressWithUserData>(),
+        () => {
+          const userAssociation = userFactory.associate();
+          return {
+            city: 'New York',
+            userEmail: userAssociation.get('email'),
+            userName: userAssociation.get('name'),
+          };
+        },
+      );
+
+      // Act
+      const newAddress = await addressFactory.create();
+
+      // Assert
+      expect(newAddress).toEqual({
+        city: 'New York',
+        userEmail: 'user@mail.com',
+        userName: 'John Doe',
       });
     });
   });

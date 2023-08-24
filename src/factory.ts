@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { merge, times } from 'lodash';
 import type { PartialDeep } from 'type-fest';
 import { ModelAdapter } from './adapters/adapter.interface';
