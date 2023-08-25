@@ -4,9 +4,9 @@ import { FactoryGirl } from '@src/factory-girl';
 import { UserEntity } from './user.entity';
 import { userSchema } from './user.schema';
 
-describe('Mikro Orm Integration', () => {
-  let orm: MikroORM;
+let orm: MikroORM;
 
+describe('Mikro Orm Integration', () => {
   const buildUserDefaultAttributes = () => ({
     email: 'mikro-orm@mail.com',
     name: 'Mikro Orm',
@@ -57,5 +57,22 @@ describe('Mikro Orm Integration', () => {
         email: 'custom-email@mail.com',
       });
     });
+
+    test('creates a user in the database', async () => {
+      // Arrange
+      const user = await userFactory.create();
+
+      // Act
+      const userInDatabase = await findUserById(user.id);
+
+      // Assert
+      expect(userInDatabase).toEqual(user);
+    });
   });
 });
+
+async function findUserById(id: number) {
+  return await orm.em.fork().findOne(UserEntity, id, {
+    refresh: true,
+  });
+}
