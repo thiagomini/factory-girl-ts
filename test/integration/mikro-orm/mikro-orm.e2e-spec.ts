@@ -3,6 +3,8 @@ import { MikroOrmAdapter } from '@src/adapters/mikro-orm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import { AddressEntity } from './address.entity';
 import { addressSchema } from './address.schema';
+import { BookEntity } from './book.entity';
+import { bookSchema } from './book.schema';
 import { PhoneUser } from './phone-user.entity';
 import { UserEntity } from './user.entity';
 import { userSchema } from './user.schema';
@@ -26,9 +28,8 @@ describe('Mikro Orm Integration', () => {
     orm = await MikroORM.init({
       clientUrl: 'postgresql://postgres:pass123@localhost:5432/postgres',
       schema: 'mikro',
-      entities: [userSchema, addressSchema],
+      entities: [userSchema, addressSchema, bookSchema],
       type: 'postgresql',
-      debug: true,
     });
 
     await orm.getSchemaGenerator().updateSchema({
@@ -205,6 +206,27 @@ describe('Mikro Orm Integration', () => {
       expect(phoneUser).toEqual({
         id: expect.any(Number),
         phone: '+55 11 99999-9999',
+      });
+    });
+
+    test('creates an entity using custom association attributes', async () => {
+      // Arrange
+      const bookFactory = FactoryGirl.define(BookEntity, () => ({
+        name: 'book',
+        authorId: userFactory.associate('id', {
+          name: 'Custom Association Name',
+        }),
+      }));
+
+      // Act
+      const book = await bookFactory.create();
+
+      // Assert
+      const user = await findUserById(book.authorId);
+      expect(user).toEqual({
+        ...buildUserDefaultAttributes(),
+        id: expect.any(Number),
+        name: 'Custom Association Name',
       });
     });
   });

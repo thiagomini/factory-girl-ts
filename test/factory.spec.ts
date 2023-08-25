@@ -47,6 +47,11 @@ describe('Factory', () => {
     buildUserAttributes,
   );
 
+  const addressFactory = FactoryGirl.define(
+    plainObject<Address>(),
+    buildAddressAttributes,
+  );
+
   describe('build', () => {
     it('should build the given type with all properties', async () => {
       // Act
@@ -631,6 +636,43 @@ describe('Factory', () => {
         city: 'New York',
         userEmail: 'user@mail.com',
         userName: 'John Doe',
+      });
+    });
+
+    it('should allow specifying association attributes', async () => {
+      // Arrange
+      const userWithNewYorkCityFactory = userFactory.extend(() => ({
+        address: addressFactory.associate({
+          city: 'New York',
+        }),
+      }));
+      // Act
+      const newUser = await userWithNewYorkCityFactory.create();
+
+      // Assert
+      expect(newUser).toEqual({
+        ...buildUserAttributes(),
+        address: {
+          ...buildAddressAttributes(),
+          city: 'New York',
+        },
+      });
+    });
+
+    it('should allow specifying association attributes with key', async () => {
+      // Arrange
+      const addressWithCompanyUser = addressFactory.extend(() => ({
+        userId: userFactory.associate('id', {
+          email: 'john@company.com',
+        }),
+      }));
+      // Act
+      const newAddress = await addressWithCompanyUser.create();
+
+      // Assert
+      expect(newAddress).toEqual({
+        ...buildAddressAttributes(),
+        userId: expect.any(Number),
       });
     });
   });
