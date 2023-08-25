@@ -91,6 +91,23 @@ describe('Mikro Orm Integration', () => {
         name: 'Mikro Orm After Hook',
       });
     });
+
+    test('creates a user with an extended factory', async () => {
+      // Arrange
+      const userFactoryWithAfterHook = userFactory.extend(async () => ({
+        name: 'Extended Name',
+      }));
+
+      // Act
+      const user = await userFactoryWithAfterHook.create();
+
+      // Assert
+      expect(user).toEqual({
+        id: expect.any(Number),
+        ...buildUserDefaultAttributes(),
+        name: 'Extended Name',
+      });
+    });
   });
 });
 
