@@ -3,6 +3,7 @@ import { MikroOrmAdapter } from '@src/adapters/mikro-orm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import { AddressEntity } from './address.entity';
 import { addressSchema } from './address.schema';
+import { PhoneUser } from './phone-user.entity';
 import { UserEntity } from './user.entity';
 import { userSchema } from './user.schema';
 
@@ -154,6 +155,25 @@ describe('Mikro Orm Integration', () => {
           address: expect.any(AddressEntity),
           phone: null,
         },
+      });
+    });
+
+    test('creates a subclass of User using mutate', async () => {
+      // Arrange
+      const phoneUserFactory = userFactory.mutate<PhoneUser>(
+        (user) => new PhoneUser(user.id, user.phone as string),
+      );
+
+      // Act
+      const phoneUser = await phoneUserFactory.create({
+        phone: '+55 11 99999-9999',
+      });
+
+      // Assert
+      expectTypeOf(phoneUser).toEqualTypeOf<PhoneUser>();
+      expect(phoneUser).toEqual({
+        id: expect.any(Number),
+        phone: '+55 11 99999-9999',
       });
     });
   });

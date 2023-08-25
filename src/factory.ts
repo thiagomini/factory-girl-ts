@@ -165,8 +165,10 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     );
   }
 
-  mutate<NewType>(callback: (model: Model) => NewType | Promise<NewType>) {
-    const newHook = async (model: Model) => {
+  mutate<NewType>(
+    callback: (model: InstanceOrInterface<Model>) => NewType | Promise<NewType>,
+  ) {
+    const newHook = async (model: InstanceOrInterface<Model>) => {
       const newModel = await callback(model);
       return newModel;
     };
