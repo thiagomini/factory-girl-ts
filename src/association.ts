@@ -1,16 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ValueOf } from 'type-fest';
 import { ModelAdapter } from './adapters';
 import { Factory, Override } from './factory';
-import { Dictionary } from './types';
 export class Association<
   Model,
-  Attributes = Dictionary,
-  Params = Dictionary,
-  ReturnType = Model,
+  Attributes = any,
+  Params = any,
+  ReturnType = any,
 > {
   constructor(
     private readonly factory: Factory<Model, Attributes, Params, ReturnType>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private readonly adapter: ModelAdapter<any, ReturnType>,
     private readonly additionalAttributes?: Override<Attributes, ReturnType>,
     private readonly key?: keyof ReturnType,

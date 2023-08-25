@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ModelAdapter } from './adapters/adapter.interface';
 import { ObjectAdapter } from './adapters/object.adapter';
 import { Factory } from './factory';
 import { DefaultAttributesFactory } from './interfaces';
-import { DeepPartialAttributes, Dictionary } from './types';
+import { DeepPartialAttributes } from './types';
 import { InstanceOrInterface } from './types/instance-or-interface.type';
 
 export class FactoryGirl {
@@ -25,7 +26,7 @@ export class FactoryGirl {
   static define<
     ModelOrInterface,
     Attributes = DeepPartialAttributes<InstanceOrInterface<ModelOrInterface>>,
-    Parameters = Dictionary,
+    Parameters = any,
     ReturnType extends InstanceOrInterface<ModelOrInterface> = InstanceOrInterface<ModelOrInterface>,
   >(
     model: ModelOrInterface,

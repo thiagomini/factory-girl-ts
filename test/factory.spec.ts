@@ -658,6 +658,23 @@ describe('Factory', () => {
         },
       });
     });
+
+    it('should allow specifying association attributes with key', async () => {
+      // Arrange
+      const addressWithCompanyUser = addressFactory.extend(() => ({
+        userId: userFactory.associate('id', {
+          email: 'john@company.com',
+        }),
+      }));
+      // Act
+      const newAddress = await addressWithCompanyUser.create();
+
+      // Assert
+      expect(newAddress).toEqual({
+        ...buildAddressAttributes(),
+        userId: expect.any(Number),
+      });
+    });
   });
 
   describe('mutate', () => {

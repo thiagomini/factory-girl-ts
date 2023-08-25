@@ -16,7 +16,7 @@ export type Override<Attributes, ReturnType> =
   | PartialDeep<NonFunctionProperties<Attributes>>
   | PartialDeep<NonFunctionProperties<ReturnType>>;
 
-export class Factory<Model, Attributes, Params, ReturnType = Model> {
+export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
   constructor(
     private readonly defaultAttributesFactory: DefaultAttributesFactory<
       Attributes,
@@ -33,14 +33,28 @@ export class Factory<Model, Attributes, Params, ReturnType = Model> {
   }
 
   associate<K extends keyof ReturnType>(
-    key?: K | undefined | Override<Attributes, ReturnType>,
-  ) {
+    k?: K,
+  ): Association<Model, Attributes, Params, ReturnType>;
+  associate<O extends Override<Attributes, ReturnType>>(
+    override: O,
+  ): Association<Model, Attributes, Params, ReturnType>;
+  associate<
+    K extends keyof ReturnType,
+    O extends Override<Attributes, ReturnType>,
+  >(key: K, override: O): Association<any, any, any, any>;
+  associate<
+    K extends keyof ReturnType,
+    O extends Override<Attributes, ReturnType>,
+  >(
+    key?: K | Override<Attributes, ReturnType>,
+    override?: O,
+  ): Association<Model, Attributes, Params, ReturnType> {
     const isAssociationAttribute = isObject(key);
 
     return new Association<Model, Attributes, Params, ReturnType>(
       this,
       this.adapter,
-      isAssociationAttribute ? key : undefined,
+      isAssociationAttribute ? key : override,
       isAssociationAttribute ? undefined : (key as K),
     );
   }
