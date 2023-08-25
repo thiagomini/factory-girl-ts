@@ -1,5 +1,7 @@
+import { ModelAdapter } from '../../lib';
+
 export interface AfterCreateHook<T> {
-  (model: T): Promise<T> | T;
+  (model: T, adapter: ModelAdapter<T, T>): Promise<T> | T;
 }
 
 export interface AfterBuildHook<T> {

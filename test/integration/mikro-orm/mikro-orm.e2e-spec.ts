@@ -1,4 +1,4 @@
-import { MikroORM } from '@mikro-orm/core';
+import { MikroORM, wrap } from '@mikro-orm/core';
 import { MikroOrmAdapter } from '@src/adapters/mikro-orm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import { UserEntity } from './user.entity';
@@ -67,6 +67,29 @@ describe('Mikro Orm Integration', () => {
 
       // Assert
       expect(userInDatabase).toEqual(user);
+    });
+
+    test('creates a user with afterCreate hook', async () => {
+      // Arrange
+      const userFactoryWithAfterHook = userFactory.afterCreate(
+        async (user, adapter) => {
+          wrap(user).assign({
+            name: 'Mikro Orm After Hook',
+          });
+          await adapter.save(user);
+          return user;
+        },
+      );
+
+      // Act
+      const user = await userFactoryWithAfterHook.create();
+
+      // Assert
+      expect(user).toEqual({
+        id: expect.any(Number),
+        ...buildUserDefaultAttributes(),
+        name: 'Mikro Orm After Hook',
+      });
     });
   });
 });

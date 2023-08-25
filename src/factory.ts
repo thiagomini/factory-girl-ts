@@ -175,7 +175,10 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
     returnedObject: ReturnType,
   ): Promise<ReturnType> {
     for (const hook of this.afterCreateHooks) {
-      returnedObject = await hook(returnedObject);
+      returnedObject = await hook(
+        returnedObject,
+        this.adapter as unknown as ModelAdapter<ReturnType, ReturnType>,
+      );
     }
 
     return returnedObject;
