@@ -9,9 +9,10 @@ type DefaultAttributes<T> = (
   | {
       [K in keyof T]?: T[K] | Association<T[K]>;
     }
-) & {
-  [key: string]: unknown;
-};
+) &
+  Partial<{
+    [key: string]: unknown;
+  }>;
 
 export type DefaultAttributesFactory<T, P> = (
   params: AdditionalParams<P>,
