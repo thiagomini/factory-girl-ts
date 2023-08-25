@@ -28,6 +28,7 @@ describe('Mikro Orm Integration', () => {
       schema: 'mikro',
       entities: [userSchema, addressSchema],
       type: 'postgresql',
+      debug: true,
     });
 
     await orm.getSchemaGenerator().updateSchema({
@@ -49,6 +50,36 @@ describe('Mikro Orm Integration', () => {
         id: expect.any(Number),
         ...buildUserDefaultAttributes(),
       });
+    });
+
+    test('creates many users', async () => {
+      // Arrange
+      await userFactory.createMany(2, [
+        {
+          name: 'User 1',
+        },
+        {
+          name: 'User 2',
+          phone: 'phone',
+        },
+      ]);
+
+      // Act
+      const users = await findUsers();
+
+      // Assert
+      expect(users).toHaveLength(2);
+      expect(users).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'User 1',
+          }),
+          expect.objectContaining({
+            name: 'User 2',
+            phone: 'phone',
+          }),
+        ]),
+      );
     });
 
     test('creates a user with null attribute', async () => {
@@ -183,4 +214,8 @@ async function findUserById(id: number) {
   return await orm.em.fork().findOne(UserEntity, id, {
     refresh: true,
   });
+}
+
+async function findUsers() {
+  return await orm.em.fork().find(UserEntity, {});
 }
