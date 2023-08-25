@@ -172,6 +172,27 @@ describe('Factory', () => {
         },
       });
     });
+
+    it('should allow passing a parameter even when the default type is undefined', async () => {
+      // Arrange
+      const userFactory = FactoryGirl.define<User>(plainObject<User>(), () => ({
+        name: undefined,
+        address: undefined,
+        email: 'some-email@mail.com',
+      }));
+
+      // Act
+      const userWithName = await userFactory.build({
+        name: 'Defined Name',
+      });
+
+      // Assert
+      expect(userWithName).toEqual({
+        email: 'some-email@mail.com',
+        address: undefined,
+        name: 'Defined Name',
+      });
+    });
   });
 
   describe('buildMany', () => {

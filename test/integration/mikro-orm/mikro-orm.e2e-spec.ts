@@ -13,6 +13,7 @@ describe('Mikro Orm Integration', () => {
     email: 'mikro-orm@mail.com',
     name: 'Mikro Orm',
     address: null,
+    phone: null,
   });
 
   const userFactory = FactoryGirl.define(
@@ -46,6 +47,29 @@ describe('Mikro Orm Integration', () => {
       expect(user).toEqual({
         id: expect.any(Number),
         ...buildUserDefaultAttributes(),
+      });
+    });
+
+    test('creates a user with null attribute', async () => {
+      // Arrange
+      const userFactoryWithNull = FactoryGirl.define(UserEntity, () => {
+        return {
+          name: 'User',
+          email: 'mail@mail.com',
+          phone: null,
+        };
+      });
+
+      // Act
+      const userWithNullName = await userFactoryWithNull.create({
+        phone: '+55 11 99999-9999',
+      });
+
+      expect(userWithNullName).toEqual({
+        id: expect.any(Number),
+        name: 'User',
+        email: 'mail@mail.com',
+        phone: '+55 11 99999-9999',
       });
     });
 
@@ -128,6 +152,7 @@ describe('Mikro Orm Integration', () => {
           name: expect.any(String),
           email: expect.any(String),
           address: expect.any(AddressEntity),
+          phone: null,
         },
       });
     });

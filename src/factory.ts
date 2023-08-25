@@ -9,8 +9,12 @@ import {
   AfterCreateHook,
   DefaultAttributesFactory,
 } from './interfaces';
-import { Dictionary } from './types';
+import { Dictionary, NonFunctionProperties } from './types';
 import { InstanceOrInterface } from './types/instance-or-interface.type';
+
+export type Override<Attributes, ReturnType> =
+  | PartialDeep<NonFunctionProperties<Attributes>>
+  | PartialDeep<NonFunctionProperties<ReturnType>>;
 
 export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
   constructor(
@@ -39,7 +43,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
   }
 
   async create(
-    override?: PartialDeep<Attributes>,
+    override?: Override<Attributes, ReturnType>,
     additionalParams?: Params,
   ): Promise<ReturnType> {
     const defaultAttributesWithAssociations = await this.resolveAssociations(
@@ -59,7 +63,9 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
 
   async createMany(
     count: number,
-    partials?: PartialDeep<Attributes>[] | PartialDeep<Attributes>,
+    partials?:
+      | Override<Attributes, ReturnType>[]
+      | Override<Attributes, ReturnType>,
     additionalParams?: Params,
   ): Promise<ReturnType[]> {
     return await Promise.all(
@@ -73,7 +79,7 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
   }
 
   async build(
-    override?: PartialDeep<Attributes>,
+    override?: Override<Attributes, ReturnType>,
     additionalParams?: Params,
   ): Promise<ReturnType> {
     let mergedAttributes = override;
@@ -95,7 +101,9 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
 
   async buildMany(
     count: number,
-    partials?: PartialDeep<Attributes>[] | PartialDeep<Attributes>,
+    partials?:
+      | Override<Attributes, ReturnType>[]
+      | Override<Attributes, ReturnType>,
     additionalParams?: Params,
   ): Promise<ReturnType[]> {
     if (Array.isArray(partials)) {

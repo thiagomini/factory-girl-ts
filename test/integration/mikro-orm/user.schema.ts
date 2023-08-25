@@ -14,5 +14,9 @@ export const userSchema = new EntitySchema<UserEntity>({
       entity: () => AddressEntity,
       mappedBy: 'user',
     },
+    phone: {
+      type: String,
+      nullable: true,
+    },
   },
 });
