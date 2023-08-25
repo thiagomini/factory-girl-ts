@@ -1,6 +1,8 @@
 import { MikroORM, wrap } from '@mikro-orm/core';
 import { MikroOrmAdapter } from '@src/adapters/mikro-orm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
+import { AddressEntity } from './address.entity';
+import { addressSchema } from './address.schema';
 import { UserEntity } from './user.entity';
 import { userSchema } from './user.schema';
 
@@ -10,6 +12,7 @@ describe('Mikro Orm Integration', () => {
   const buildUserDefaultAttributes = () => ({
     email: 'mikro-orm@mail.com',
     name: 'Mikro Orm',
+    address: null,
   });
 
   const userFactory = FactoryGirl.define(
@@ -21,7 +24,7 @@ describe('Mikro Orm Integration', () => {
     orm = await MikroORM.init({
       clientUrl: 'postgresql://postgres:pass123@localhost:5432/postgres',
       schema: 'mikro',
-      entities: [userSchema],
+      entities: [userSchema, addressSchema],
       type: 'postgresql',
     });
 
@@ -106,6 +109,26 @@ describe('Mikro Orm Integration', () => {
         id: expect.any(Number),
         ...buildUserDefaultAttributes(),
         name: 'Extended Name',
+      });
+    });
+
+    test('creates an address with a relationship', async () => {
+      const addressFactory = FactoryGirl.define(AddressEntity, () => ({
+        city: 'Mikro Orm City',
+        user: userFactory.associate(),
+      }));
+
+      const address = await addressFactory.create();
+
+      expect(address).toEqual({
+        id: expect.any(Number),
+        city: 'Mikro Orm City',
+        user: {
+          id: expect.any(Number),
+          name: expect.any(String),
+          email: expect.any(String),
+          address: expect.any(AddressEntity),
+        },
       });
     });
   });
