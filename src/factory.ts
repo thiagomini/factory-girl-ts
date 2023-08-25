@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { merge, times } from 'lodash';
+import { isObject, merge, times } from 'lodash';
 import type { PartialDeep } from 'type-fest';
 import { ModelAdapter } from './adapters/adapter.interface';
 import { Association } from './association';
@@ -16,7 +16,7 @@ export type Override<Attributes, ReturnType> =
   | PartialDeep<NonFunctionProperties<Attributes>>
   | PartialDeep<NonFunctionProperties<ReturnType>>;
 
-export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
+export class Factory<Model, Attributes, Params, ReturnType = Model> {
   constructor(
     private readonly defaultAttributesFactory: DefaultAttributesFactory<
       Attributes,
@@ -33,12 +33,15 @@ export class Factory<Model, Attributes, Params, ReturnType = Attributes> {
   }
 
   associate<K extends keyof ReturnType>(
-    key?: K | undefined,
-  ): Association<Model, Attributes, Params, ReturnType> {
+    key?: K | undefined | Override<Attributes, ReturnType>,
+  ) {
+    const isAssociationAttribute = isObject(key);
+
     return new Association<Model, Attributes, Params, ReturnType>(
       this,
       this.adapter,
-      key,
+      isAssociationAttribute ? key : undefined,
+      isAssociationAttribute ? undefined : (key as K),
     );
   }
 

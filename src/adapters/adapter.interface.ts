@@ -10,7 +10,7 @@ export interface ModelAdapter<ModelClass, ReturnType> {
     >,
   ): ReturnType;
 
-  save(model: ReturnType, modelClass: ModelClass): Promise<ReturnType>;
+  save(model: ReturnType, modelClass?: ModelClass): Promise<ReturnType>;
 
   get<K extends keyof ReturnType>(model: ReturnType, key: K): ReturnType[K];
 }

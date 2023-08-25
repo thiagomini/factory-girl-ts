@@ -28,7 +28,6 @@ describe('Mikro Orm Integration', () => {
       schema: 'mikro',
       entities: [userSchema, addressSchema],
       type: 'postgresql',
-      debug: true,
     });
 
     await orm.getSchemaGenerator().updateSchema({
