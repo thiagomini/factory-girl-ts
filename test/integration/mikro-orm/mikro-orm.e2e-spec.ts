@@ -45,5 +45,17 @@ describe('Mikro Orm Integration', () => {
         ...buildUserDefaultAttributes(),
       });
     });
+
+    test('creates a user with overwritten attributes', async () => {
+      const user = await userFactory.create({
+        email: 'custom-email@mail.com',
+      });
+
+      expect(user).toEqual({
+        ...buildUserDefaultAttributes(),
+        id: expect.any(Number),
+        email: 'custom-email@mail.com',
+      });
+    });
   });
 });
