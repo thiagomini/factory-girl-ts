@@ -21,7 +21,12 @@ Key features of `factory-girl-ts` include:
 
 `factory-girl-ts` uses an instance of the Factory class to define factories. The Factory class offers several methods for building and creating instances of your models. You can create single or multiple instances, with or without custom attributes, and the library also supports creating instances with associations.
 
-It also allows you to specify an adapter for your ORM, and currently supports three adapters: `TypeOrmRepositoryAdapter`, `SequelizeAdapter`, and `ObjectAdapter`.
+It also allows you to specify an adapter for your ORM, and currently supports four adapters:
+
+- `TypeOrmRepositoryAdapter`
+- `SequelizeAdapter`
+- `MikroOrmAdapter`
+- `ObjectAdapter`
 
 Here's a simple class diagram showing how the main pieces of the library fit together:
 
@@ -30,7 +35,7 @@ classDiagram
     FactoryGirl --|> Factory : creates
     ModelAdapter <|.. TypeOrmRepositoryAdapter
     ModelAdapter <|.. SequelizeAdapter
-    ModelAdapter <|.. ObjectAdapter
+    ModelAdapter <|.. MikroOrmAdapter
     FactoryGirl o-- ModelAdapter : uses
     Factory o-- Factory : associate
     Factory --|> Entity : creates
@@ -49,10 +54,10 @@ npm install factory-girl-ts
 
 Factories in factory-girl-ts are instances of the Factory class, offering several methods for building and creating instances of your models.
 
-- `build(override?)`: builds the target object, with an optional `override` parameter
-- `buildMany(override?)`: builds an array of the target object
-- `async create(override)`: creates an instance of the target object
-- `async createMany(override)`: creates an array of instances of the target object
+- `async build(override?)`: builds the target object, with an optional `override` parameter
+- `async buildMany(override?)`: builds an array of the target object
+- `async create(override)`: creates an instance of the target object in the database
+- `async createMany(override)`: creates an array of instances of the target object in the database
 
 Let's see how to define a factory and use each of the methods above
 
@@ -77,7 +82,7 @@ const defaultAttributesFactory = () => ({
 const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
 
 // Step 3: Use the factory to create instances of the model.
-const defaultUser = userFactory.build();
+const defaultUser = await userFactory.build();
 console.log(defaultUser);
 // Output: { name: 'John', email: 'some-email@mail.com', state: 'Some state', country: 'Some country' }
 ```
@@ -110,13 +115,13 @@ const defaultAttributesFactory = () => ({
 const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
 
 // Step 3: Use the factory to create instances of the model.
-const defaultUser = userFactory.build();
+const defaultUser = await userFactory.build();
 console.log(defaultUser);
 // Output: { name: 'John', email: 'some-email-1@mail.com', state: 'Some state', country: 'Some country' }
-const defaultUser2 = userFactory.build();
+const defaultUser2 = await userFactory.build();
 console.log(defaultUser2);
 // Output: { name: 'John', email: 'some-email-2@mail.com', state: 'Some state', country: 'Some country' }
-const defaultUser3 = userFactory.build();
+const defaultUser3 = await userFactory.build();
 console.log(defaultUser3);
 // Output: { name: 'John', email: 'some-email-3@mail.com', state: 'Some state', country: 'Some country' }
 ```
@@ -126,12 +131,12 @@ console.log(defaultUser3);
 You can override default properties when creating a model instance:
 
 ```ts
-const userWithCustomName = userFactory.build({ name: 'Jane' });
+const userWithCustomName = await userFactory.build({ name: 'Jane' });
 console.log(userWithCustomName);
 // Output: { name: 'Jane', email: 'some-email@mail.com', 'Some state', country: 'Some country' }
 
 // Overriding nested properties:
-const userWithCustomAddress = userFactory.build({
+const userWithCustomAddress = await userFactory.build({
   address: { state: 'Another state' },
 });
 console.log(userWithCustomAddress);
@@ -157,7 +162,7 @@ const defaultAttributesFactory = () => ({
 const userFactory = FactoryGirl.define(User, defaultAttributesFactory);
 
 // 3. Create multiple instances of the model.
-const users = userFactory.buildMany(2);
+const users = await userFactory.buildMany(2);
 console.log(users);
 // Output: [ { name: 'John', email: 'some-email@mail.com' }, { name: 'John', email: 'some-email@mail.com' } ]
 ```
@@ -168,7 +173,7 @@ buildMany() also allows you to override default attributes for each created inst
 
 ```ts
 // Create multiple instances with custom attributes.
-const [jane, mary] = userFactory.buildMany(
+const [jane, mary] = await userFactory.buildMany(
   2,
   { name: 'Jane' },
   { name: 'Mary' },
@@ -183,7 +188,7 @@ If you want to apply the same override to all instances, you can do that too:
 
 ```ts
 // Create multiple instances with the same custom attribute.
-const [user1, user2] = userFactory.buildMany(2, { name: 'Foo' });
+const [user1, user2] = await userFactory.buildMany(2, { name: 'Foo' });
 console.log(user1.name); // Output: 'Foo'
 console.log(user2.name); // Output: 'Foo'
 ```
@@ -290,7 +295,22 @@ const addressFactory = FactoryGirl.define(Address, () => ({
 }));
 ```
 
-Lastly, the `associate()` method only comes into play if no value is provided for the given association. This prevents unnecessary creation of entities and can be particularly useful when you want to control the associated value.
+Lastly, the `associate()` method can also define a custom value for the associated model.
+
+```ts
+const addressForCompanyUserFactory = FactoryGirl.define(Address, () => ({
+  id: 1,
+  street: '123 Fake St.',
+  city: 'Springfield',
+  state: 'IL',
+  zip: '90210',
+  userId: userFactory.associate('id', {
+    email: 'john@company.com', // This will create a user with the specified email.
+  }),
+}));
+```
+
+Keep in mind `associate` only comes into play if no value is provided for the given association. This prevents unnecessary creation of entities and can be particularly useful when you want to control the associated value.
 
 ```ts
 // Create an Address instance with a specified 'userId'. This will bypass the 'associate()' method in the User factory.
@@ -308,15 +328,84 @@ const companyEmailUser = userFactory.extend(() => ({
   email: 'user@company.com',
 }));
 
-const user = companyEmailUser.build();
+const user = await companyEmailUser.build();
 console.log(user.email); // Output: 'user@company'
 ```
 
-The strategy above is helpful to create factories to abstract common use cases.
+You can also use an async callback when extending a factory. This might be useful when the extended factory relies on async resources:
+
+```ts
+const companyEmailUser = userFactory.extend(async () => ({
+  email: await getEmailFromSomeAsyncResource(),
+}));
+
+const user = await companyEmailUser.create();
+console.log(user.email); // Output: 'async.email@company.com'
+```
+
+#### Extending Factories with reused Associations
+
+There are scenarios where a child factory has more than one attribute that depends on another factory - this is common when we have non-normalized tables. Check out the example below:
+
+```mermaid
+---
+title: Denormalized Table Example
+---
+erDiagram
+    user ||--|{ employee : "has"
+    company ||--|{ employee : "employs"
+
+    user {
+        int id
+        string email
+        string name
+        string password
+    }
+
+    employee {
+        int user_id
+        string name
+        int company_id
+    }
+
+    company {
+        int id
+        string name
+        string EIN
+    }
+
+```
+
+In this diagram:
+
+- `user` has a `one-to-many` relationship with `employee` using `user.id` and `employee.user_id`.
+
+- `company` has a `one-to-many` relationship with `employee` using `company.id` and `employee.company_id`.
+
+In order to create an employee factory, we must make sure the `user_id` and `email` belong to the same user. We can leverage the `association.get()` method to do so:
+
+```ts
+const employeeFactory = FactoryGirl.define(Employee, () => {
+  const userAssociation = userFactory.associate('id');
+
+  return {
+    name: userAssociation.get('name'),
+    userId: userAssociation.get('id'),
+    companyId: companyFactory.associate('id'),
+  };
+});
+
+const employee = await employeeFactory.create();
+```
+
+The strategy above is helpful ensure the data consistency - the employee name will always be the same as the `user` name.
 
 ### Factory Hooks
 
-You can also define hooks to run after creating an instance. This might be handy when there is custom logic or async logic to be executed.
+You can also define hooks to run after creating an instance. This might be handy when there is custom logic or async logic to be executed. We have two types of hooks:
+
+- `afterBuild()`: runs after `build()` is called.
+- `afterCreate()`: runs after `create()` is called.
 
 ```ts
 const adminUserFactory = userFactory.afterCreate((user) => {
@@ -329,7 +418,20 @@ const adminUserFactory = userFactory.afterCreate((user) => {
 });
 ```
 
-The `afterCreate()` hooks return a brand new factory, so you can chain as many hooks as you want. Moreover, this hook requires that the input model (in the example above, a `User`) is returned.
+Both hooks return a brand new factory, so you can chain as many hooks as you want. Moreover, these hook requires that the input model (in the example above, a `User`) is returned.
+
+### Mutating the Model
+
+It's possible to change the return type of a Factory using the `mutate()` method. The `mutate()` method returns a new factory that alters the return type of the original factory:
+
+```ts
+const employeeFactory = userFactory.mutate(
+  Employee,
+  (user) => new Employee(user.id, user.name),
+);
+```
+
+That method is useful when you have an entity that is based on a parent entity table, but has a different class / behavior. This is common when you have the same table representing two entities from different [bounded contexts](https://martinfowler.com/bliki/BoundedContext.html).
 
 ### Conclusion
 
