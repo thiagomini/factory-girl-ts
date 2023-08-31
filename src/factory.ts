@@ -39,9 +39,7 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
    * @param key The key of this model to be returned when the association is resolved.
    * @returns An association object that can be used to build or create the associated model.
    */
-  associate<K extends keyof ReturnType>(
-    k?: K,
-  ): Association<Model, Attributes, Params, ReturnType>;
+  associate<K extends keyof ReturnType>(k?: K): Association<any, any, any, any>;
   associate<O extends Override<Attributes, ReturnType>>(
     override: O,
   ): Association<Model, Attributes, Params, ReturnType>;

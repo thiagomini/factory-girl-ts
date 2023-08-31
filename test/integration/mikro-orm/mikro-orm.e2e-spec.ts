@@ -6,6 +6,8 @@ import { addressSchema } from './address.schema';
 import { BookEntity } from './book.entity';
 import { bookSchema } from './book.schema';
 import { PhoneUser } from './phone-user.entity';
+import { UserProfileEntity } from './user-profile.entity';
+import { userProfileSchema } from './user-profile.schema';
 import { UserEntity } from './user.entity';
 import { userSchema } from './user.schema';
 
@@ -28,7 +30,7 @@ describe('Mikro Orm Integration', () => {
     orm = await MikroORM.init({
       clientUrl: 'postgresql://postgres:pass123@localhost:5432/postgres',
       schema: 'mikro',
-      entities: [userSchema, addressSchema, bookSchema],
+      entities: [userSchema, addressSchema, bookSchema, userProfileSchema],
       type: 'postgresql',
     });
 
@@ -227,6 +229,30 @@ describe('Mikro Orm Integration', () => {
         ...buildUserDefaultAttributes(),
         id: expect.any(Number),
         name: 'Custom Association Name',
+      });
+    });
+
+    test('creates an entity with many references to the same association', async () => {
+      // Arrange
+      const userProfileFactory = FactoryGirl.define(UserProfileEntity, () => {
+        const userAssociation = userFactory.associate();
+        return {
+          photo: 'photo',
+          email: userAssociation.get('email'),
+          userId: userAssociation.get('id'),
+        };
+      });
+
+      // Act
+      const userProfile = await userProfileFactory.create();
+
+      // Assert
+      const defaultUserAttributes = buildUserDefaultAttributes();
+      expect(userProfile).toEqual({
+        id: expect.any(Number),
+        userId: expect.any(Number),
+        email: defaultUserAttributes.email,
+        photo: 'photo',
       });
     });
   });

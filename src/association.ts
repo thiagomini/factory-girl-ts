@@ -28,7 +28,9 @@ export class Association<
 
   async create(): Promise<ReturnType | ValueOf<ReturnType>> {
     if (this.cachedModel) {
-      const cachedModelAwaited = await this.cachedModel;
+      const cachedModelAwaited = await this.adapter.save(
+        await this.cachedModel,
+      );
       return this.adapter.get(cachedModelAwaited, this.key as keyof ReturnType);
     }
 
@@ -45,7 +47,7 @@ export class Association<
     key: keyof ReturnType,
   ): Association<Model, Attributes, Params, ReturnType> {
     const cachedModel: Promise<ReturnType> =
-      this.cachedModel ?? (this.create() as Promise<ReturnType>);
+      this.cachedModel ?? (this.build() as Promise<ReturnType>);
     return new Association(
       this.factory,
       this.adapter,
