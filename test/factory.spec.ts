@@ -198,6 +198,36 @@ describe('Factory', () => {
         name: 'Defined Name',
       });
     });
+
+    it('builds an object with many references to the same association', async () => {
+      // Arrange
+      type UserProfile = {
+        email: string;
+        photo: string;
+      };
+      const userProfileFactory = FactoryGirl.define<UserProfile>(
+        plainObject<UserProfile>(),
+        () => {
+          const userAssociation = userFactory.associate();
+          return {
+            email: userAssociation.get('email'),
+            userId: userAssociation.get('id'),
+            photo: 'some-photo.jpg',
+          };
+        },
+      );
+
+      // Act
+      const userProfile = await userProfileFactory.build();
+
+      // Assert
+      const defaultUserValues = buildUserAttributes();
+      expect(userProfile).toEqual({
+        email: defaultUserValues.email,
+        userId: defaultUserValues.id,
+        photo: 'some-photo.jpg',
+      });
+    });
   });
 
   describe('buildMany', () => {
