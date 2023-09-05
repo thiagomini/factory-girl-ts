@@ -13,47 +13,42 @@ export class Association<
     private readonly adapter: ModelAdapter<any, ReturnType>,
     private readonly additionalAttributes?: Override<Attributes, ReturnType>,
     private readonly key?: keyof ReturnType,
-    private readonly cachedModel?: Promise<ReturnType>,
+    private cachedBuiltModel?: ReturnType,
+    private cachedCreatedModel?: ReturnType,
   ) {}
 
   async build(): Promise<ReturnType | ValueOf<ReturnType>> {
-    const built = await this.factory.build(this.additionalAttributes);
+    this.cachedBuiltModel =
+      this.cachedBuiltModel ??
+      (await this.factory.build(this.additionalAttributes));
 
     if (this.key) {
-      return this.adapter.get(built, this.key);
+      return this.adapter.get(this.cachedBuiltModel, this.key);
     }
 
-    return built;
+    return this.cachedBuiltModel;
   }
 
   async create(): Promise<ReturnType | ValueOf<ReturnType>> {
-    if (this.cachedModel) {
-      const cachedModelAwaited = await this.adapter.save(
-        await this.cachedModel,
-      );
-      return this.adapter.get(cachedModelAwaited, this.key as keyof ReturnType);
-    }
-
-    const createdModel = await this.factory.create(this.additionalAttributes);
+    this.cachedCreatedModel =
+      this.cachedCreatedModel ??
+      (await this.factory.create(this.additionalAttributes));
 
     if (this.key) {
-      return this.adapter.get(createdModel, this.key);
+      return this.adapter.get(this.cachedCreatedModel, this.key);
     }
 
-    return createdModel;
+    return this.cachedCreatedModel;
   }
 
   get(
     key: keyof ReturnType,
   ): Association<Model, Attributes, Params, ReturnType> {
-    const cachedModel: Promise<ReturnType> =
-      this.cachedModel ?? (this.build() as Promise<ReturnType>);
     return new Association(
       this.factory,
       this.adapter,
       this.additionalAttributes,
       key,
-      cachedModel,
     );
   }
 }

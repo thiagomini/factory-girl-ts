@@ -6,6 +6,8 @@ import { addressSchema } from './address.schema';
 import { BookEntity } from './book.entity';
 import { bookSchema } from './book.schema';
 import { PhoneUser } from './phone-user.entity';
+import { UserProfilePreferencesEntity } from './user-profile-preferences.entity';
+import { userProfilePreferencesSchema } from './user-profile-preferences.schema';
 import { UserProfileEntity } from './user-profile.entity';
 import { userProfileSchema } from './user-profile.schema';
 import { UserEntity } from './user.entity';
@@ -26,11 +28,26 @@ describe('Mikro Orm Integration', () => {
     buildUserDefaultAttributes,
   );
 
+  const userProfileFactory = FactoryGirl.define(UserProfileEntity, () => {
+    const userAssociation = userFactory.associate();
+    return {
+      photo: 'photo',
+      email: userAssociation.get('email'),
+      userId: userAssociation.get('id'),
+    };
+  });
+
   beforeAll(async () => {
     orm = await MikroORM.init({
       clientUrl: 'postgresql://postgres:pass123@localhost:5432/postgres',
       schema: 'mikro',
-      entities: [userSchema, addressSchema, bookSchema, userProfileSchema],
+      entities: [
+        userSchema,
+        addressSchema,
+        bookSchema,
+        userProfileSchema,
+        userProfilePreferencesSchema,
+      ],
       type: 'postgresql',
     });
 
@@ -233,16 +250,6 @@ describe('Mikro Orm Integration', () => {
     });
 
     test('creates an entity with many references to the same association', async () => {
-      // Arrange
-      const userProfileFactory = FactoryGirl.define(UserProfileEntity, () => {
-        const userAssociation = userFactory.associate();
-        return {
-          photo: 'photo',
-          email: userAssociation.get('email'),
-          userId: userAssociation.get('id'),
-        };
-      });
-
       // Act
       const userProfile = await userProfileFactory.create();
 
@@ -254,6 +261,39 @@ describe('Mikro Orm Integration', () => {
         email: defaultUserAttributes.email,
         photo: 'photo',
       });
+    });
+
+    test('creates an entity that depends on another entity with many references to the same association', async () => {
+      // Arrange
+      const userProfilePreferencesFactory = FactoryGirl.define(
+        UserProfilePreferencesEntity,
+        () => ({
+          theme: 'dark',
+          userProfileId: userProfileFactory.associate('id'),
+        }),
+      );
+
+      // Act
+      const userProfilePreferences =
+        await userProfilePreferencesFactory.create();
+
+      // Assert
+      expect(userProfilePreferences).toEqual({
+        id: expect.any(Number),
+        theme: 'dark',
+        userProfileId: expect.any(Number),
+      });
+    });
+
+    test('creates an association with a specific key', async () => {
+      // Arrange
+      const userProfileAssoc = userProfileFactory.associate();
+
+      // Act
+      const userProfileId = await userProfileAssoc.get('id').create();
+
+      // Assert
+      expect(userProfileId).toBeTruthy();
     });
   });
 });
