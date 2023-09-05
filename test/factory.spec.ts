@@ -52,6 +52,10 @@ describe('Factory', () => {
     buildAddressAttributes,
   );
 
+  beforeEach(() => {
+    FactoryGirl.cleanUp();
+  });
+
   describe('build', () => {
     it('should build the given type with all properties', async () => {
       // Act
@@ -201,6 +205,11 @@ describe('Factory', () => {
 
     it('builds an object with many references to the same association', async () => {
       // Arrange
+      const emails = ['first@mail.com', 'second@mail.com'];
+      const userFactoryWithRandomValues = userFactory.extend(() => ({
+        email: FactoryGirl.sequence('user.email', (n: number) => emails[n - 1]),
+        id: FactoryGirl.sequence('user.id', (n: number) => n - 1),
+      }));
       type UserProfile = {
         email: string;
         photo: string;
@@ -208,7 +217,7 @@ describe('Factory', () => {
       const userProfileFactory = FactoryGirl.define<UserProfile>(
         plainObject<UserProfile>(),
         () => {
-          const userAssociation = userFactory.associate();
+          const userAssociation = userFactoryWithRandomValues.associate();
           return {
             email: userAssociation.get('email'),
             userId: userAssociation.get('id'),
@@ -221,10 +230,9 @@ describe('Factory', () => {
       const userProfile = await userProfileFactory.build();
 
       // Assert
-      const defaultUserValues = buildUserAttributes();
       expect(userProfile).toEqual({
-        email: defaultUserValues.email,
-        userId: defaultUserValues.id,
+        email: 'first@mail.com',
+        userId: 1,
         photo: 'some-photo.jpg',
       });
     });
