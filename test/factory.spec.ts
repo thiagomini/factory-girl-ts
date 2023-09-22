@@ -236,6 +236,19 @@ describe('Factory', () => {
         photo: 'some-photo.jpg',
       });
     });
+
+    it('overrides one attribute with undefined', async () => {
+      // Act
+      const user = await userFactory.build({
+        address: undefined,
+      });
+
+      // Assert
+      expect(user).toEqual({
+        ...buildUserAttributes(),
+        address: undefined,
+      });
+    });
   });
 
   describe('buildMany', () => {

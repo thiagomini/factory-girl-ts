@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { isObject, merge, times } from 'lodash';
+import { isObject, times } from 'lodash';
 import type { PartialDeep } from 'type-fest';
 import { ModelAdapter } from './adapters/adapter.interface';
-import { Association } from './association';
+import { Association, isAssociation } from './association';
 import {
   AdditionalParams,
   AfterBuildHook,
@@ -11,6 +11,7 @@ import {
 } from './interfaces';
 import { Dictionary, NonFunctionProperties } from './types';
 import { InstanceOrInterface } from './types/instance-or-interface.type';
+import { mergeDeep } from './utils';
 
 export type Override<Attributes, ReturnType> =
   | PartialDeep<NonFunctionProperties<Attributes>>
@@ -87,7 +88,10 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
       additionalParams,
     );
 
-    const finalAttributes = merge(defaultAttributesWithAssociations, override);
+    const finalAttributes = mergeDeep<Attributes>(
+      defaultAttributesWithAssociations,
+      override as Attributes,
+    );
     const built = this.adapter.build(
       this.model,
       finalAttributes as PartialDeep<InstanceOrInterface<Model>>,
@@ -148,7 +152,10 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
       additionalParams,
     );
 
-    mergedAttributes = merge(attributesWithAssociations, override);
+    mergedAttributes = mergeDeep<Override<Attributes, ReturnType>>(
+      attributesWithAssociations as Override<Attributes, ReturnType>,
+      override,
+    );
 
     const finalResult = this.adapter.build(
       this.model,
@@ -211,9 +218,13 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
       const defaultAttributes = await this.defaultAttributesFactory(
         additionalParams,
       );
-      return merge(
-        defaultAttributes,
-        await newDefaultAttributesFactory(additionalParams),
+
+      return mergeDeep<Override<Attributes, ReturnType>>(
+        defaultAttributes as Override<Attributes, ReturnType>,
+        (await newDefaultAttributesFactory(additionalParams)) as Override<
+          Attributes,
+          ReturnType
+        >,
       );
     };
     return new Factory(
@@ -343,10 +354,4 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
 
     return defaultWithAssociations as Attributes;
   }
-}
-
-function isAssociation<T>(
-  value: T | Association<T> | unknown,
-): value is Association<T> {
-  return value instanceof Association;
 }
