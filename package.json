@@ -1,6 +1,6 @@
 {
   "name": "factory-girl-ts",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A factory library to help creating test data",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
