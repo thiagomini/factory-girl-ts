@@ -2,6 +2,13 @@
 import { ValueOf } from 'type-fest';
 import { ModelAdapter } from './adapters';
 import { Factory, Override } from './factory';
+
+export function isAssociation<T>(
+  value: T | Association<T> | unknown,
+): value is Association<T> {
+  return value instanceof Association;
+}
+
 export class Association<
   Model,
   Attributes = any,
