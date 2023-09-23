@@ -215,9 +215,8 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
     const decoratedDefaultAttributesFactory = async (
       additionalParams: AdditionalParams<ExtendedParams>,
     ) => {
-      const defaultAttributes = await this.defaultAttributesFactory(
-        additionalParams,
-      );
+      const defaultAttributes =
+        await this.defaultAttributesFactory(additionalParams);
 
       return mergeDeep<Override<Attributes, ReturnType>>(
         defaultAttributes as Override<Attributes, ReturnType>,
