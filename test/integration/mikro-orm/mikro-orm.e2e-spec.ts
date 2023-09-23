@@ -1,4 +1,4 @@
-import { MikroORM, wrap } from '@mikro-orm/core';
+import { MikroORM, ref, wrap } from '@mikro-orm/core';
 import { MikroOrmAdapter } from '@src/adapters/mikro-orm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import { AddressEntity } from './address.entity';
@@ -248,6 +248,27 @@ describe('Mikro Orm Integration', () => {
         ...buildUserDefaultAttributes(),
         id: expect.any(Number),
         name: 'Custom Association Name',
+      });
+    });
+
+    test('creates an entity with an existing association', async () => {
+      // Arrange
+      const user = await userFactory.create();
+
+      // Act
+      const userProfile = await userProfileFactory.create({
+        user: ref(user),
+      });
+
+      // Assert
+      const defaultUserAttributes = buildUserDefaultAttributes();
+      expect(userProfile).toMatchObject({
+        id: expect.any(Number),
+        user: expect.objectContaining({
+          id: user.id,
+          ...defaultUserAttributes,
+          profile: expect.any(UserProfileEntity),
+        }),
       });
     });
 
