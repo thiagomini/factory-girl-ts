@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EntityManager, MikroORM } from '@mikro-orm/core';
+import { BaseEntity, EntityManager, MikroORM } from '@mikro-orm/core';
 import { ModelAdapter } from './adapter.interface';
 
 export type MikroOrmAdapterOptions = {
   shouldFork: boolean;
 };
 
-export class MikroOrmAdapter<TModelSchema, ReturnType>
-  implements ModelAdapter<TModelSchema, ReturnType>
+export class MikroOrmAdapter<
+  TModelSchema extends BaseEntity<any, any>,
+  ReturnType,
+> implements ModelAdapter<TModelSchema, ReturnType>
 {
   constructor(
     private readonly orm: MikroORM,

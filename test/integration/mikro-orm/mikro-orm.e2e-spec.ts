@@ -1,4 +1,4 @@
-import { MikroORM, wrap } from '@mikro-orm/core';
+import { MikroORM, ref, wrap } from '@mikro-orm/core';
 import { MikroOrmAdapter } from '@src/adapters/mikro-orm.adapter';
 import { FactoryGirl } from '@src/factory-girl';
 import { AddressEntity } from './address.entity';
@@ -21,6 +21,7 @@ describe('Mikro Orm Integration', () => {
     name: 'Mikro Orm',
     address: null,
     phone: null,
+    profile: null,
   });
 
   const userFactory = FactoryGirl.define(
@@ -33,7 +34,7 @@ describe('Mikro Orm Integration', () => {
     return {
       photo: 'photo',
       email: userAssociation.get('email'),
-      userId: userAssociation.get('id'),
+      user: userAssociation,
     };
   });
 
@@ -205,6 +206,7 @@ describe('Mikro Orm Integration', () => {
           email: expect.any(String),
           address: expect.any(AddressEntity),
           phone: null,
+          profile: null,
         },
       });
     });
@@ -249,6 +251,27 @@ describe('Mikro Orm Integration', () => {
       });
     });
 
+    test('creates an entity with an existing association', async () => {
+      // Arrange
+      const user = await userFactory.create();
+
+      // Act
+      const userProfile = await userProfileFactory.create({
+        user: ref(user),
+      });
+
+      // Assert
+      const defaultUserAttributes = buildUserDefaultAttributes();
+      expect(userProfile).toMatchObject({
+        id: expect.any(Number),
+        user: expect.objectContaining({
+          id: user.id,
+          ...defaultUserAttributes,
+          profile: expect.any(UserProfileEntity),
+        }),
+      });
+    });
+
     test('creates an entity with many references to the same association', async () => {
       // Act
       const userProfile = await userProfileFactory.create();
@@ -257,7 +280,9 @@ describe('Mikro Orm Integration', () => {
       const defaultUserAttributes = buildUserDefaultAttributes();
       expect(userProfile).toEqual({
         id: expect.any(Number),
-        userId: expect.any(Number),
+        user: expect.objectContaining({
+          id: expect.any(Number),
+        }),
         email: defaultUserAttributes.email,
         photo: 'photo',
       });
@@ -269,7 +294,7 @@ describe('Mikro Orm Integration', () => {
         UserProfilePreferencesEntity,
         () => ({
           theme: 'dark',
-          userProfileId: userProfileFactory.associate('id'),
+          userProfile: userProfileFactory.associate(),
         }),
       );
 
@@ -281,7 +306,9 @@ describe('Mikro Orm Integration', () => {
       expect(userProfilePreferences).toEqual({
         id: expect.any(Number),
         theme: 'dark',
-        userProfileId: expect.any(Number),
+        userProfile: expect.objectContaining({
+          id: expect.any(Number),
+        }),
       });
     });
 

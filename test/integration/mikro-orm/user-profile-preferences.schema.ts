@@ -8,11 +8,10 @@ export const userProfilePreferencesSchema =
     properties: {
       id: { type: Number, primary: true, nullable: false, autoincrement: true },
       theme: { type: String, nullable: false },
-      userProfileId: { type: Number, nullable: false },
       userProfile: {
         reference: '1:1',
         entity: () => UserProfileEntity,
-        mappedBy: 'preferences',
+        inversedBy: 'preferences',
       },
     },
   });
