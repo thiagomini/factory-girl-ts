@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { merge } from 'lodash';
+import deepmerge from 'deepmerge';
+import { isPlainObject } from 'lodash';
 import { Dictionary } from './types';
 
 export function plainObject<T extends Dictionary>(): T {
@@ -15,5 +16,7 @@ export function mergeDeep<T>(
   object1: Partial<T>,
   object2: Partial<T> = {},
 ): any {
-  return merge(object1, object2);
+  return deepmerge(object1, object2, {
+    isMergeableObject: isPlainObject,
+  });
 }
