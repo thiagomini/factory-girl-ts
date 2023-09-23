@@ -51,7 +51,8 @@ export class FactoryGirl {
     ModelOrInterface,
     Attributes = DeepPartialAttributes<InstanceOrInterface<ModelOrInterface>>,
     Parameters = any,
-    ReturnType extends InstanceOrInterface<ModelOrInterface> = InstanceOrInterface<ModelOrInterface>,
+    ReturnType extends
+      InstanceOrInterface<ModelOrInterface> = InstanceOrInterface<ModelOrInterface>,
   >(
     model: ModelOrInterface,
     defaultAttributesFactory: DefaultAttributesFactory<Attributes, Parameters>,
