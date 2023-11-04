@@ -8,6 +8,7 @@ type User = {
   name: string;
   email: string;
   address: Address;
+  profiles?: Profile[];
 };
 
 type Address = {
@@ -17,6 +18,10 @@ type Address = {
   city: string;
   userId?: number;
   user?: User;
+};
+
+type Profile = {
+  imageUri: URL;
 };
 
 function buildUserAttributes(): User {
@@ -42,6 +47,12 @@ function buildAddressAttributes(): Address {
   };
 }
 
+function buildProfileAttributes(): Profile {
+  return {
+    imageUri: new URL('https://example.com'),
+  };
+}
+
 describe('Factory', () => {
   const userFactory = FactoryGirl.define(
     plainObject<User>(),
@@ -51,6 +62,11 @@ describe('Factory', () => {
   const addressFactory = FactoryGirl.define(
     plainObject<Address>(),
     buildAddressAttributes,
+  );
+
+  const profileFactory = FactoryGirl.define(
+    plainObject<Profile>(),
+    buildProfileAttributes,
   );
 
   beforeEach(() => {
@@ -755,6 +771,68 @@ describe('Factory', () => {
           email: 'john@ACME.com',
         },
       });
+    });
+  });
+
+  describe('associateMany', () => {
+    it('should create an array of associated entity', async () => {
+      // Arrange
+      const userWithProfiles = userFactory.extend(() => ({
+        profiles: profileFactory.associateMany(2),
+      }));
+      // Act
+      const newUser = await userWithProfiles.create();
+
+      // Assert
+      expect(newUser.profiles).toEqual([
+        buildProfileAttributes(),
+        buildProfileAttributes(),
+      ]);
+    });
+
+    it('should allow specifying association attributes', async () => {
+      // Arrange
+      const userWithProfiles = userFactory.extend(() => ({
+        profiles: profileFactory.associateMany(2, {
+          imageUri: new URL('https://modified.com'),
+        }),
+      }));
+      // Act
+      const newUser = await userWithProfiles.create();
+
+      // Assert
+      expect(newUser.profiles).toHaveLength(2);
+      expect(newUser.profiles![0].imageUri).toEqual(
+        new URL('https://modified.com'),
+      );
+      expect(newUser.profiles![1].imageUri).toEqual(
+        new URL('https://modified.com'),
+      );
+    });
+
+    it('should allow specifying association transient params', async () => {
+      // Arrange
+      const tenantProfileFactory = profileFactory.extend<{ tenantId: number }>(
+        ({ transientParams }) => ({
+          imageUri: new URL(`https://tenant-${transientParams?.tenantId}.com`),
+        }),
+      );
+
+      const userWithProfiles = userFactory.extend(() => ({
+        profiles: tenantProfileFactory.associateMany(2, {}, { tenantId: 1 }),
+      }));
+
+      // Act
+      const newUser = await userWithProfiles.create();
+
+      // Assert
+      expect(newUser.profiles).toHaveLength(2);
+      expect(newUser.profiles![0].imageUri.toString()).toEqual(
+        'https://tenant-1.com/',
+      );
+      expect(newUser.profiles![1].imageUri.toString()).toEqual(
+        'https://tenant-1.com/',
+      );
     });
   });
 

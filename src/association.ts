@@ -23,7 +23,21 @@ export class Association<
     private readonly transientParams?: Params,
     private cachedBuiltModel?: ReturnType,
     private cachedCreatedModel?: ReturnType,
+    private readonly count?: number,
   ) {}
+
+  public withCount(count: number): Association<Model, Attributes, Params> {
+    return new Association(
+      this.factory,
+      this.adapter,
+      this.additionalAttributes,
+      this.key,
+      this.transientParams,
+      this.cachedBuiltModel,
+      this.cachedCreatedModel,
+      count,
+    );
+  }
 
   async build(): Promise<ReturnType | ValueOf<ReturnType>> {
     this.cachedBuiltModel =
@@ -40,6 +54,14 @@ export class Association<
     return this.cachedBuiltModel;
   }
 
+  async buildMany(): Promise<ReturnType[] | ValueOf<ReturnType>[]> {
+    return this.factory.buildMany(
+      this.count ?? 1,
+      this.additionalAttributes,
+      this.transientParams,
+    );
+  }
+
   async create(): Promise<ReturnType | ValueOf<ReturnType>> {
     this.cachedCreatedModel =
       this.cachedCreatedModel ??
@@ -53,6 +75,22 @@ export class Association<
     }
 
     return this.cachedCreatedModel;
+  }
+
+  async createMany(): Promise<ReturnType[] | ValueOf<ReturnType>[]> {
+    return this.factory.createMany(
+      this.count ?? 1,
+      this.additionalAttributes,
+      this.transientParams,
+    );
+  }
+
+  async resolve(method: 'build' | 'create') {
+    if (method === 'build') {
+      return this.count ? this.buildMany() : this.build();
+    }
+
+    return this.count ? this.createMany() : this.create();
   }
 
   get(

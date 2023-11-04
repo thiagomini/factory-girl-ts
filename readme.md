@@ -248,6 +248,8 @@ console.log(user2.get('name')); // Output: 'Foo'
 
 ### Working with Associations
 
+#### Associate
+
 `factory-girl-ts` provides an easy way to create associations between models using the `associate()` method. This method links a model to another by using an attribute from the associated model.
 
 Let's walk through an example to demonstrate how this works. We'll be using a `User` model and an `Address` model, where each user has one address.
@@ -333,6 +335,31 @@ Keep in mind `associate` only comes into play if no value is provided for the gi
 const addressFromFirstUser = await addressFactory.create({
   userId: 1,
 });
+```
+
+#### Associate Many
+
+We can use the `associateMany(count, override, transientParams)` version to associate many instances of a model to another. This is useful when we have a `one-to-many` relationship between two models.
+
+Let's walk through an example to demonstrate how this works. We'll be using a `User` model and a `Profile` model, where each user has many profiles.
+
+```ts
+// Define the Profile Factory
+const profileFactory = FactoryGirl.define(Profile, () => ({
+  phone: '000000000',
+  imageUri: 'http://some-image-uri.com',
+}));
+
+// Define the User Factory, associating it with the Profile Factory.
+const userFactory = FactoryGirl.define(User, () => ({
+  id: 1,
+  name: 'John',
+  profiles: profileFactory.associateMany(2, { phone: '123456789' }),
+}));
+
+// Create a User instance with two associated Profiles.
+const user = await userFactory.create();
+console.log(user.profiles); // Output: [ { phone: '123456789', imageUri: 'http://some-image-uri.com' }, { phone: '123456789', imageUri: 'http://some-image-uri.com' } ]
 ```
 
 ### Extending Factories

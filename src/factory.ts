@@ -87,6 +87,27 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
   }
 
   /**
+   * Creates an association with the current factory that should create multiple models.
+   * @param count The number of models to create.
+   * @param override The attributes that override the default factory attributes.
+   * @param transientParams The factory transient parameters.
+   * @returns An association object that can be used to build or create the associated models.
+   */
+  associateMany<O extends Override<Attributes, ReturnType>>(
+    count: number,
+    override?: O,
+    transientParams?: Params,
+  ): Association<any> {
+    return new Association<Model, Attributes, Params, ReturnType>(
+      this,
+      this.adapter,
+      override,
+      undefined,
+      transientParams,
+    ).withCount(count);
+  }
+
+  /**
    * Creates a model and saves it to the database. This is based on the default attributes and
    * can be overridden by passing in an object.
    * @param override An object that overrides the default attributes.
@@ -365,7 +386,7 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
     for (const prop in attributes as Dictionary) {
       const value = attributes[prop as keyof typeof attributes];
       if (isAssociation(value)) {
-        defaultWithAssociations[prop] = await value[associationType]();
+        defaultWithAssociations[prop] = await value.resolve(associationType);
       } else {
         defaultWithAssociations[prop] = value;
       }
