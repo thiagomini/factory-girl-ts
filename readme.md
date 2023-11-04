@@ -248,7 +248,7 @@ console.log(user2.get('name')); // Output: 'Foo'
 
 ### Working with Associations
 
-## Associate
+#### Associate
 
 `factory-girl-ts` provides an easy way to create associations between models using the `associate()` method. This method links a model to another by using an attribute from the associated model.
 
@@ -337,7 +337,7 @@ const addressFromFirstUser = await addressFactory.create({
 });
 ```
 
-## Associate Many
+#### Associate Many
 
 We can use the `associateMany(count, override, transientParams)` version to associate many instances of a model to another. This is useful when we have a `one-to-many` relationship between two models.
 
