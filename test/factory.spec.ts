@@ -810,50 +810,29 @@ describe('Factory', () => {
       );
     });
 
-    it.skip('should allow specifying association attributes with key', async () => {
+    it('should allow specifying association transient params', async () => {
       // Arrange
-      const addressWithCompanyUser = addressFactory.extend(() => ({
-        userId: userFactory.associate('id', {
-          email: 'john@company.com',
-        }),
-      }));
-      // Act
-      const newAddress = await addressWithCompanyUser.create();
-
-      // Assert
-      expect(newAddress).toEqual({
-        ...buildAddressAttributes(),
-        userId: expect.any(Number),
-      });
-    });
-
-    it.skip('should allow specifying association transient params', async () => {
-      // Arrange
-      const companyUserFactory = userFactory.extend<{ companyName: string }>(
+      const tenantProfileFactory = profileFactory.extend<{ tenantId: number }>(
         ({ transientParams }) => ({
-          email: `john@${transientParams?.companyName ?? 'company'}.com`,
+          imageUri: new URL(`https://tenant-${transientParams?.tenantId}.com`),
         }),
       );
-      const userAssociation = companyUserFactory.associate(
-        {},
-        { companyName: 'ACME' },
-      );
 
-      const addressWithCompanyUser = addressFactory.extend(() => ({
-        user: userAssociation as Association<Address['user']>,
+      const userWithProfiles = userFactory.extend(() => ({
+        profiles: tenantProfileFactory.associateMany(2, {}, { tenantId: 1 }),
       }));
 
       // Act
-      const newAddress = await addressWithCompanyUser.create();
+      const newUser = await userWithProfiles.create();
 
       // Assert
-      expect(newAddress).toEqual({
-        ...buildAddressAttributes(),
-        user: {
-          ...buildUserAttributes(),
-          email: 'john@ACME.com',
-        },
-      });
+      expect(newUser.profiles).toHaveLength(2);
+      expect(newUser.profiles![0].imageUri.toString()).toEqual(
+        'https://tenant-1.com/',
+      );
+      expect(newUser.profiles![1].imageUri.toString()).toEqual(
+        'https://tenant-1.com/',
+      );
     });
   });
 
