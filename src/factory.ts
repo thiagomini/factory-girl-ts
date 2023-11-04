@@ -86,10 +86,14 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
     );
   }
 
-  associateMany(count: number): Association<any> {
+  associateMany<O extends Override<Attributes, ReturnType>>(
+    count: number,
+    override?: O,
+  ): Association<any> {
     return new Association<Model, Attributes, Params, ReturnType>(
       this,
       this.adapter,
+      override,
     ).withCount(count);
   }
 

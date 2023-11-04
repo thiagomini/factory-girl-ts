@@ -790,24 +790,24 @@ describe('Factory', () => {
       ]);
     });
 
-    it.skip('should allow specifying association attributes', async () => {
+    it('should allow specifying association attributes', async () => {
       // Arrange
-      const userWithNewYorkCityFactory = userFactory.extend(() => ({
-        address: addressFactory.associate({
-          city: 'New York',
+      const userWithProfiles = userFactory.extend(() => ({
+        profiles: profileFactory.associateMany(2, {
+          imageUri: new URL('https://modified.com'),
         }),
       }));
       // Act
-      const newUser = await userWithNewYorkCityFactory.create();
+      const newUser = await userWithProfiles.create();
 
       // Assert
-      expect(newUser).toEqual({
-        ...buildUserAttributes(),
-        address: {
-          ...buildAddressAttributes(),
-          city: 'New York',
-        },
-      });
+      expect(newUser.profiles).toHaveLength(2);
+      expect(newUser.profiles![0].imageUri).toEqual(
+        new URL('https://modified.com'),
+      );
+      expect(newUser.profiles![1].imageUri).toEqual(
+        new URL('https://modified.com'),
+      );
     });
 
     it.skip('should allow specifying association attributes with key', async () => {
