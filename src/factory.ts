@@ -86,6 +86,13 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
     );
   }
 
+  /**
+   * Creates an association with the current factory that should create multiple models.
+   * @param count The number of models to create.
+   * @param override The attributes that override the default factory attributes.
+   * @param transientParams The factory transient parameters.
+   * @returns An association object that can be used to build or create the associated models.
+   */
   associateMany<O extends Override<Attributes, ReturnType>>(
     count: number,
     override?: O,
