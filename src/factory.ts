@@ -86,6 +86,13 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
     );
   }
 
+  associateMany(count: number): Association<any> {
+    return new Association<Model, Attributes, Params, ReturnType>(
+      this,
+      this.adapter,
+    ).withCount(count);
+  }
+
   /**
    * Creates a model and saves it to the database. This is based on the default attributes and
    * can be overridden by passing in an object.
@@ -365,7 +372,7 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
     for (const prop in attributes as Dictionary) {
       const value = attributes[prop as keyof typeof attributes];
       if (isAssociation(value)) {
-        defaultWithAssociations[prop] = await value[associationType]();
+        defaultWithAssociations[prop] = await value.resolve(associationType);
       } else {
         defaultWithAssociations[prop] = value;
       }

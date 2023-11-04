@@ -8,6 +8,7 @@ type User = {
   name: string;
   email: string;
   address: Address;
+  profiles?: Profile[];
 };
 
 type Address = {
@@ -17,6 +18,10 @@ type Address = {
   city: string;
   userId?: number;
   user?: User;
+};
+
+type Profile = {
+  imageUri: URL;
 };
 
 function buildUserAttributes(): User {
@@ -42,6 +47,12 @@ function buildAddressAttributes(): Address {
   };
 }
 
+function buildProfileAttributes(): Profile {
+  return {
+    imageUri: new URL('https://example.com'),
+  };
+}
+
 describe('Factory', () => {
   const userFactory = FactoryGirl.define(
     plainObject<User>(),
@@ -51,6 +62,11 @@ describe('Factory', () => {
   const addressFactory = FactoryGirl.define(
     plainObject<Address>(),
     buildAddressAttributes,
+  );
+
+  const profileFactory = FactoryGirl.define(
+    plainObject<Profile>(),
+    buildProfileAttributes,
   );
 
   beforeEach(() => {
@@ -729,6 +745,89 @@ describe('Factory', () => {
     });
 
     it('should allow specifying association transient params', async () => {
+      // Arrange
+      const companyUserFactory = userFactory.extend<{ companyName: string }>(
+        ({ transientParams }) => ({
+          email: `john@${transientParams?.companyName ?? 'company'}.com`,
+        }),
+      );
+      const userAssociation = companyUserFactory.associate(
+        {},
+        { companyName: 'ACME' },
+      );
+
+      const addressWithCompanyUser = addressFactory.extend(() => ({
+        user: userAssociation as Association<Address['user']>,
+      }));
+
+      // Act
+      const newAddress = await addressWithCompanyUser.create();
+
+      // Assert
+      expect(newAddress).toEqual({
+        ...buildAddressAttributes(),
+        user: {
+          ...buildUserAttributes(),
+          email: 'john@ACME.com',
+        },
+      });
+    });
+  });
+
+  describe('associateMany', () => {
+    it('should create an array of associated entity', async () => {
+      // Arrange
+      const userWithProfiles = userFactory.extend(() => ({
+        profiles: profileFactory.associateMany(2),
+      }));
+      // Act
+      const newUser = await userWithProfiles.create();
+
+      // Assert
+      expect(newUser.profiles).toEqual([
+        buildProfileAttributes(),
+        buildProfileAttributes(),
+      ]);
+    });
+
+    it.skip('should allow specifying association attributes', async () => {
+      // Arrange
+      const userWithNewYorkCityFactory = userFactory.extend(() => ({
+        address: addressFactory.associate({
+          city: 'New York',
+        }),
+      }));
+      // Act
+      const newUser = await userWithNewYorkCityFactory.create();
+
+      // Assert
+      expect(newUser).toEqual({
+        ...buildUserAttributes(),
+        address: {
+          ...buildAddressAttributes(),
+          city: 'New York',
+        },
+      });
+    });
+
+    it.skip('should allow specifying association attributes with key', async () => {
+      // Arrange
+      const addressWithCompanyUser = addressFactory.extend(() => ({
+        userId: userFactory.associate('id', {
+          email: 'john@company.com',
+        }),
+      }));
+      // Act
+      const newAddress = await addressWithCompanyUser.create();
+
+      // Assert
+      expect(newAddress).toEqual({
+        ...buildAddressAttributes(),
+        userId: expect.any(Number),
+      });
+    });
+
+    it.skip('should allow specifying association transient params', async () => {
       // Arrange
       const companyUserFactory = userFactory.extend<{ companyName: string }>(
         ({ transientParams }) => ({
