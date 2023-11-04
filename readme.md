@@ -295,7 +295,7 @@ const addressFactory = FactoryGirl.define(Address, () => ({
 }));
 ```
 
-Lastly, the `associate()` method can also define a custom value for the associated model.
+Lastly, the `associate()` method can also define custom attributes for the associated model.
 
 ```ts
 const addressForCompanyUserFactory = FactoryGirl.define(Address, () => ({
@@ -307,6 +307,22 @@ const addressForCompanyUserFactory = FactoryGirl.define(Address, () => ({
   userId: userFactory.associate('id', {
     email: 'john@company.com', // This will create a user with the specified email.
   }),
+}));
+```
+
+```ts
+const addressForCompanyUserFactory = FactoryGirl.define(Address, () => ({
+  id: 1,
+  street: '123 Fake St.',
+  city: 'Springfield',
+  state: 'IL',
+  zip: '90210',
+  user: userFactory.associate(
+    {},
+    {
+      companyName: 'ACME', // This will create a user passing the "companyName" transient parameter. That parameter may be used by the user factory to alter the user's email for instance.
+    },
+  ),
 }));
 ```
 
