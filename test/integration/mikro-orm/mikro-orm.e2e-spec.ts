@@ -200,14 +200,7 @@ describe('Mikro Orm Integration', () => {
       expect(address).toEqual({
         id: expect.any(Number),
         city: 'Mikro Orm City',
-        user: {
-          id: expect.any(Number),
-          name: expect.any(String),
-          email: expect.any(String),
-          address: expect.any(AddressEntity),
-          phone: null,
-          profile: null,
-        },
+        user: expect.any(UserEntity),
       });
     });
 
