@@ -17,9 +17,10 @@ export class Association<
 > {
   constructor(
     private readonly factory: Factory<Model, Attributes, Params, ReturnType>,
-    private readonly adapter: ModelAdapter<any, ReturnType>,
+    private readonly adapter: ModelAdapter<Model, ReturnType>,
     private readonly additionalAttributes?: Override<Attributes, ReturnType>,
     private readonly key?: keyof ReturnType,
+    private readonly transientParams?: Params,
     private cachedBuiltModel?: ReturnType,
     private cachedCreatedModel?: ReturnType,
   ) {}
@@ -27,7 +28,10 @@ export class Association<
   async build(): Promise<ReturnType | ValueOf<ReturnType>> {
     this.cachedBuiltModel =
       this.cachedBuiltModel ??
-      (await this.factory.build(this.additionalAttributes));
+      (await this.factory.build(
+        this.additionalAttributes,
+        this.transientParams,
+      ));
 
     if (this.key) {
       return this.adapter.get(this.cachedBuiltModel, this.key);
@@ -39,7 +43,10 @@ export class Association<
   async create(): Promise<ReturnType | ValueOf<ReturnType>> {
     this.cachedCreatedModel =
       this.cachedCreatedModel ??
-      (await this.factory.create(this.additionalAttributes));
+      (await this.factory.create(
+        this.additionalAttributes,
+        this.transientParams,
+      ));
 
     if (this.key) {
       return this.adapter.get(this.cachedCreatedModel, this.key);
