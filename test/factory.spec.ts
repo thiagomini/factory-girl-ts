@@ -1,7 +1,7 @@
 import { FactoryGirl } from '@src/factory-girl';
 import { plainObject } from '@src/utils';
 import { ObjectAdapter, SequelizeAdapter } from '../lib';
-import { DeepPartialAttributes } from '../src';
+import { Association, DeepPartialAttributes } from '../src';
 
 type User = {
   id: number;
@@ -16,6 +16,7 @@ type Address = {
   number: number;
   city: string;
   userId?: number;
+  user?: User;
 };
 
 function buildUserAttributes(): User {
@@ -724,6 +725,35 @@ describe('Factory', () => {
       expect(newAddress).toEqual({
         ...buildAddressAttributes(),
         userId: expect.any(Number),
+      });
+    });
+
+    it('should allow specifying association transient params', async () => {
+      // Arrange
+      const companyUserFactory = userFactory.extend<{ companyName: string }>(
+        ({ transientParams }) => ({
+          email: `john@${transientParams?.companyName ?? 'company'}.com`,
+        }),
+      );
+      const userAssociation = companyUserFactory.associate(
+        {},
+        { companyName: 'ACME' },
+      );
+
+      const addressWithCompanyUser = addressFactory.extend(() => ({
+        user: userAssociation as Association<Address['user']>,
+      }));
+
+      // Act
+      const newAddress = await addressWithCompanyUser.create();
+
+      // Assert
+      expect(newAddress).toEqual({
+        ...buildAddressAttributes(),
+        user: {
+          ...buildUserAttributes(),
+          email: 'john@ACME.com',
+        },
       });
     });
   });

@@ -44,6 +44,10 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
   associate<O extends Override<Attributes, ReturnType>>(
     override: O,
   ): Association<Model, Attributes, Params, ReturnType>;
+  associate<O extends Override<Attributes, ReturnType>>(
+    override: O,
+    transientParams: Params,
+  ): Association<Model, Attributes, Params, ReturnType>;
   associate<
     K extends keyof ReturnType,
     O extends Override<Attributes, ReturnType>,
@@ -53,16 +57,17 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
     K extends keyof ReturnType,
     O extends Override<Attributes, ReturnType>,
   >(
-    key?: K | Override<Attributes, ReturnType>,
-    override?: O,
+    keyOrOverride?: K | Override<Attributes, ReturnType>,
+    overrideOrTransientParams?: O | Params,
   ): Association<Model, Attributes, Params, ReturnType> {
-    const isAssociationAttribute = isObject(key);
+    const isAssociationAttribute = isObject(keyOrOverride);
 
     return new Association<Model, Attributes, Params, ReturnType>(
       this,
       this.adapter,
-      isAssociationAttribute ? key : override,
-      isAssociationAttribute ? undefined : (key as K),
+      isAssociationAttribute ? keyOrOverride : (overrideOrTransientParams as O),
+      isAssociationAttribute ? undefined : (keyOrOverride as K),
+      overrideOrTransientParams as Params,
     );
   }
 
