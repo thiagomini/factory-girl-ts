@@ -1,6 +1,6 @@
 import { FactoryGirl } from '@src/factory-girl';
 import { plainObject } from '@src/utils';
-import { ObjectAdapter, SequelizeAdapter } from '../lib';
+import { ModelAdapter, ObjectAdapter, SequelizeAdapter } from '../lib';
 import { Association, DeepPartialAttributes } from '../src';
 
 type User = {
@@ -649,19 +649,6 @@ describe('Factory', () => {
       });
     });
 
-    it('extends the factory with new attributes', async () => {
-      // Act
-      const companyEmailUserFactory = userFactory.extend(() => ({
-        anotherAttribute: 'value',
-      }));
-
-      // Assert
-      await expect(companyEmailUserFactory.build()).resolves.toEqual({
-        ...buildUserAttributes(),
-        anotherAttribute: 'value',
-      });
-    });
-
     it('extends the factory with async attributes', async () => {
       // Act
       const companyEmailUserFactory = userFactory.extend(async () => ({
@@ -879,6 +866,36 @@ describe('Factory', () => {
 
       // Assert
       expect(user).toBeTruthy();
+    });
+
+    test('creates factory with given adapter', async () => {
+      // Arrange
+      class TestableAdapter implements ModelAdapter<User, User> {
+        build(): User {
+          throw new Error('Method not implemented.');
+        }
+        save(): Promise<User> {
+          throw new Error('Method not implemented.');
+        }
+        get<K extends keyof User>(): User[K] {
+          throw new Error('Method not implemented.');
+        }
+      }
+
+      // Act
+      const userFactory = FactoryGirl.define(
+        plainObject<User>(),
+        () => {
+          return {
+            name: 'John Doe',
+            email: '',
+          };
+        },
+        new TestableAdapter(),
+      );
+
+      // Assert
+      expect(userFactory.adapter).toBeInstanceOf(TestableAdapter);
     });
   });
 

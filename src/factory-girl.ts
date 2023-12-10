@@ -56,11 +56,13 @@ export class FactoryGirl {
   >(
     model: ModelOrInterface,
     defaultAttributesFactory: DefaultAttributesFactory<Attributes, Parameters>,
+    adapter?: ModelAdapter<ModelOrInterface, ReturnType>,
   ): Factory<ModelOrInterface, Attributes, Parameters, ReturnType> {
     return new Factory<ModelOrInterface, Attributes, Parameters, ReturnType>(
       defaultAttributesFactory,
       model,
-      () => this.adapter as ModelAdapter<ModelOrInterface, ReturnType>,
+      () =>
+        adapter ?? (this.adapter as ModelAdapter<ModelOrInterface, ReturnType>),
     );
   }
 
