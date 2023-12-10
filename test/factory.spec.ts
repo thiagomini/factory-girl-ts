@@ -661,6 +661,34 @@ describe('Factory', () => {
         email: 'user@company.com',
       });
     });
+
+    it('extends the factory and pass custom parameters', async () => {
+      // Arrange
+      type UserTransientParams = {
+        prefix: 'Mr.' | 'Mrs.';
+      };
+      const userFactoryWithTransientParams = FactoryGirl.define<
+        User,
+        User,
+        UserTransientParams
+      >(plainObject<User>(), ({ transientParams }) => ({
+        ...buildUserAttributes(),
+        name: `${transientParams?.prefix} ${buildUserAttributes().name}`,
+      }));
+
+      const mrUserFactory = userFactoryWithTransientParams.extendParams({
+        prefix: 'Mr.',
+      });
+
+      // Act
+      const mrUser = await mrUserFactory.build();
+
+      // Assert
+      expect(mrUser).toEqual({
+        ...buildUserAttributes(),
+        name: 'Mr. John Doe',
+      });
+    });
   });
 
   describe('associate', () => {
