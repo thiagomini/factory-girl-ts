@@ -17,7 +17,8 @@ export class SequelizeAdapter<
       { recurseIntoArrays: true }
     >,
   ): TEntity {
-    return ModelClass.build(props);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return ModelClass.build(props as any);
   }
 
   async save(model: Model, ModelClass: T): Promise<Model> {
