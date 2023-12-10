@@ -45,6 +45,7 @@ export class FactoryGirl {
    * to work properly.
    * @param model The model to define a factory for. It can be either a model class or an interface.
    * @param defaultAttributesFactory A function that returns the default attributes for the model.
+   * @param adapter (optional) The adapter to use to build and save the model.
    * @returns A factory for the model.
    */
   static define<
@@ -56,11 +57,13 @@ export class FactoryGirl {
   >(
     model: ModelOrInterface,
     defaultAttributesFactory: DefaultAttributesFactory<Attributes, Parameters>,
+    adapter?: ModelAdapter<ModelOrInterface, ReturnType>,
   ): Factory<ModelOrInterface, Attributes, Parameters, ReturnType> {
     return new Factory<ModelOrInterface, Attributes, Parameters, ReturnType>(
       defaultAttributesFactory,
       model,
-      () => this.adapter as ModelAdapter<ModelOrInterface, ReturnType>,
+      () =>
+        adapter ?? (this.adapter as ModelAdapter<ModelOrInterface, ReturnType>),
     );
   }
 
