@@ -275,6 +275,39 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
   }
 
   /**
+   * Extends the current factory passing specific transient parameters. This is useful if you have a factory
+   * with transient parameters that defines the type of returned model, and you want to easily create variants of it.
+   * @param newParams The new transient parameters.
+   * @returns A new factory with the extended transient parameters.
+   * @example
+   * const userWithRolesFactory = userFactory.extend<{ roles: string[] }>(({ transientParams }) => {
+   *  return {
+   *    roles: transientParams.roles ?? [],
+   *  }
+   * })
+   *
+   * const userWithAdminRoleFactory = userWithRolesFactory.extendParams({ roles: ['admin'] });
+   * const userWithAdminRole = await userWithAdminRoleFactory.build();
+   * // userWithAdminRole.roles === ['admin']
+   */
+  extendParams<ExtendedParams extends Params = Params>(
+    newParams: ExtendedParams,
+  ): Factory<Model, Attributes, ExtendedParams, ReturnType> {
+    const newDefaultAttributesFactory = async () => {
+      return await this.defaultAttributesFactory({
+        transientParams: newParams,
+      });
+    };
+    return new Factory(
+      newDefaultAttributesFactory,
+      this.model,
+      this._adapter,
+      this.afterCreateHooks,
+      this.afterBuildHooks,
+    );
+  }
+
+  /**
    * Adds a hook that is called after the model is created.
    * @param afterCreateHook A function that is called after the model is created.
    * @returns A new factory with the added hook.
