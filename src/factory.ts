@@ -126,6 +126,7 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
   ): Promise<ReturnType> {
     const defaultAttributesWithAssociations = await this.resolveAssociations(
       'create',
+      override,
       additionalParams,
     );
 
@@ -190,6 +191,7 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
 
     const attributesWithAssociations = await this.resolveAssociations(
       'build',
+      override,
       additionalParams,
     );
 
@@ -409,11 +411,17 @@ export class Factory<Model, Attributes, Params = any, ReturnType = Model> {
 
   private async resolveAssociations(
     associationType: 'build' | 'create',
+    override?: Override<Attributes, ReturnType>,
     additionalParams?: Params,
   ): Promise<Attributes> {
-    const attributes = await this.defaultAttributesFactory({
+    const rawAttributes = await this.defaultAttributesFactory({
       transientParams: additionalParams,
     });
+    const attributes = mergeDeep<Override<Attributes, ReturnType>>(
+      rawAttributes as Override<Attributes, ReturnType>,
+      override,
+    );
+
     const defaultWithAssociations: Dictionary = {};
 
     for (const prop in attributes as Dictionary) {

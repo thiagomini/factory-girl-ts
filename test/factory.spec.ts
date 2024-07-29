@@ -1,6 +1,8 @@
 import { FactoryGirl } from '@src/factory-girl';
 import { plainObject } from '@src/utils';
+import { PartialDeep } from 'type-fest';
 import { ModelAdapter, ObjectAdapter, SequelizeAdapter } from '../lib';
+import { InstanceOrInterface } from '../lib/types/instance-or-interface.type';
 import { Association, DeepPartialAttributes } from '../src';
 
 type User = {
@@ -487,6 +489,58 @@ describe('Factory', () => {
       // Assert
       expect(address).toMatchObject(addressAttributes);
       expect(address.userId).toBe(userAttributes.id);
+    });
+
+    it('it should not create overridden associations', async () => {
+      // Arrange
+      let createdAdditionalUser = false;
+
+      class TestableUserAdapter implements ModelAdapter<User, User> {
+        build(
+          model: User,
+          props: PartialDeep<
+            InstanceOrInterface<User>,
+            { recurseIntoArrays: true }
+          >,
+        ): User {
+          return props as User;
+        }
+        async save(user: User): Promise<User> {
+          if (user.id !== 100) {
+            createdAdditionalUser = true;
+          }
+          return user;
+        }
+        get<K extends keyof User>(model: User, key: K): User[K] {
+          return model[key];
+        }
+      }
+
+      const userAttributes = buildUserAttributes();
+      const addressAttributes = buildAddressAttributes();
+
+      const userFactory = FactoryGirl.define(
+        plainObject<User>(),
+        () => userAttributes,
+        new TestableUserAdapter(),
+      );
+      const addressFactory = FactoryGirl.define(plainObject<Address>(), () => ({
+        ...addressAttributes,
+        userId: userFactory.associate('id'),
+      }));
+
+      // Act
+      const user = await userFactory.create({
+        id: 100,
+      });
+      const address = await addressFactory.create({
+        userId: user.id,
+      });
+
+      // Assert
+      expect(createdAdditionalUser).toBeFalsy();
+      expect(address).toMatchObject(addressAttributes);
+      expect(address.userId).toBe(user.id);
     });
   });
 
