@@ -495,7 +495,7 @@ describe('Factory', () => {
       // Arrange
       let createdAdditionalUser = false;
 
-      class TestableUserAdapter implements ModelAdapter<User, User> {
+      class TestableUserAdapter implements ObjectAdapter<User> {
         build(
           model: User,
           props: PartialDeep<
